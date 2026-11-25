@@ -1,0 +1,101 @@
+\section{Background and Motivation}
+
+Global climate change remains one of the most urgent challenges confronting industrial societies, carrying far-reaching consequences for ecosystems, public health, food security, and economic stability. Among its anthropogenic drivers, carbon dioxide (CO$_2$) emissions from fossil fuel combustion play a central role, with the transportation sector consistently ranking among the largest contributors worldwide. Within transportation, passenger cars and light trucks account for the dominant share of CO$_2$ output, exceeding the combined emissions of freight transport, aviation, shipping, and rail~\cite{atique2026explainable}. As global vehicle ownership expands---particularly across rapidly industrializing economies---the cumulative environmental burden of fuel consumption continues to rise, even as stricter efficiency standards and electrification programs seek to counter that trend.
+
+Although interest in electric vehicles (EVs) and hybrid electric vehicles (HEVs) has grown considerably, internal combustion engine (ICE) vehicles powered by gasoline or diesel still represent the vast majority of the active global fleet and continue to be produced and sold in substantial numbers. Alongside the long-term transition toward electrified mobility, there is therefore an immediate practical need to understand, model, and reduce the fuel consumption and CO$_2$ emissions of conventional vehicles. Historically, researchers and practitioners have relied on two broad families of methods: physical and engineering tests, such as dynamometer evaluations and portable emission measurement systems (PEMS), which deliver high accuracy but are costly, time-consuming, and difficult to scale across diverse vehicle fleets; and statistical or rule-based regression models, which are computationally lightweight yet generally unable to capture the non-linear interactions linking engine architecture, drivetrain configuration, vehicle class, and fuel consumption.
+
+Machine learning (ML) offers a third, data-driven alternative. By learning patterns directly from vehicle specification and performance records, ML models can capture complex non-linear relationships without requiring an explicit physical formulation of the combustion process. Tree-based ensemble methods---notably Random Forest, Gradient Boosting, XGBoost, LightGBM, and CatBoost---have consistently delivered strong predictive accuracy on structured, tabular automotive datasets, frequently outperforming both linear baselines and deep learning architectures on small-to-medium tabular tasks~\cite{atique2026explainable}.
+
+Predictive accuracy alone, however, is insufficient for adoption in high-stakes engineering and regulatory settings. Policymakers drafting emissions standards, engineers evaluating powertrain trade-offs, and consumers comparing vehicle models all need not only reliable efficiency estimates, but also transparent explanations of the factors behind a given prediction. Explainable artificial intelligence (XAI) addresses this requirement through techniques such as SHAP (Shapley Additive Explanations), LIME (Local Interpretable Model-Agnostic Explanations), and permutation importance, which attribute model outputs to specific, interpretable input features. Motivated by and methodologically structured around the two-stage ML--XAI framework introduced by Atique et al.~\cite{atique2026explainable}---who benchmarked seventeen algorithms alongside three XAI techniques on a 550-record Kaggle vehicle-specification dataset---this thesis adapts and extends that template to an independent experimental pipeline, aiming to deliver a rigorous, reproducible, and transparent comparative evaluation of ML models for automotive fuel efficiency prediction. Figure~\ref{fig:C} illustrates the estimated share of global CO$_2$ emissions from the transportation sector in 2022 by transport mode~\cite{atique2026explainable}.
+
+\begin{figure}[H]
+\centering
+
+\includegraphics[width=0.8\textwidth]{chapter1/E.png}
+
+\caption{Estimated percentage of global CO2 emissions from the transportation sector in 2022, categorized by mode of transport}
+\label{fig:C}
+
+\end{figure}
+
+\section{Problem Statement}
+
+Estimating a vehicle's combined fuel efficiency from static specification attributes---including engine displacement, cylinder count, drivetrain layout, transmission type, vehicle class, and model year---constitutes a challenging regression problem. These attributes influence fuel economy through interacting, non-linear physical mechanisms; for instance, the fuel-consumption penalty associated with a given engine displacement varies across model years due to incremental advances in combustion efficiency, turbocharging, and drivetrain calibration. Conventional linear regression models offer straightforward interpretability but cannot represent such interactions without extensive manual specification, whereas unconstrained ``black-box'' models such as deep neural networks or unexamined ensembles can achieve high accuracy while obscuring the underlying drivers of their predictions, thereby limiting their practical utility for engineering design and regulatory oversight.
+
+This thesis addresses that tension by investigating how a machine learning framework can be constructed to simultaneously (a) deliver strong predictive accuracy when estimating combined vehicle fuel efficiency from specification attributes, and (b) provide transparent, multi-method explainability of its internal decision logic so that the resulting insights remain trustworthy and actionable for automotive engineers, regulators, and consumers.
+
+\section{Research Gap}
+
+As examined in detail in Chapter~2, a review of the existing literature highlights five recurring gaps that this thesis seeks to address:
+
+\begin{itemize}
+    \item \textbf{Limited multi-algorithm benchmarking.} Many prior studies compare only a narrow set of ML algorithms (often fewer than five), making it difficult to establish reliably which model family performs best on structured vehicle-specification data~\cite{atique2026explainable}\cite{alhakamy2023used}.
+
+    \item \textbf{Single-method interpretability.} Studies that incorporate XAI typically rely on a single explanation technique---most often SHAP or LIME in isolation---which can yield unstable or misleading feature rankings when predictors are correlated and precludes cross-validation of interpretability results~\cite{farooq2025interpretable}\cite{ghadi2025explainable}\cite{mangalathu2020failure}\cite{haque2025ensemblexai}.
+
+    \item \textbf{Limited feature engineering validation.} Few works conduct controlled ablation experiments to verify empirically whether domain-informed engineered features, such as interaction terms between engine displacement and model year, improve predictive accuracy rather than assuming their benefit~\cite{atique2026explainable}.
+
+    \item \textbf{Dataset-specific and regionally narrow scope.} Existing analyses are frequently confined to a single national test-cycle dataset (such as US EPA, Korean KEA, or Canadian NRCan records) and seldom state dataset-level caveats explicitly when samples are skewed toward a dominant category such as gasoline vehicles~\cite{atique2026explainable}\cite{yoo2025machine}\cite{hamed2021fuel}.
+
+    \item \textbf{Insufficient triangulation between global and local explanations.} Very few studies formally measure the concordance between global explanations (SHAP and permutation importance) and local explanations (LIME) using a rank-correlation metric, leaving the consistency of interpretability claims largely untested~\cite{atique2026explainable}.
+\end{itemize}
+
+To address these gaps, this thesis benchmarks a broad suite of machine learning algorithms, applies three complementary XAI techniques, performs a controlled feature-engineering ablation study, and quantifies cross-method interpretability agreement via Spearman rank correlation, building on and extending the framework proposed by Atique et al.~\cite{atique2026explainable}.
+
+\section{Research Questions and Objectives}
+
+\subsubsection{Research Questions}
+
+The study is guided by four research questions:
+
+\begin{itemize}
+    \item \textbf{RQ1:} Which machine learning algorithm, among a broad benchmark of linear, tree-based ensemble, instance-based, and neural models, achieves the best predictive performance for combined vehicle fuel efficiency (MPG) on the dataset used in this study?
+
+    \item \textbf{RQ2:} To what extent does domain-informed feature engineering (such as interaction terms and derived binary indicators) improve predictive performance relative to using raw specification features alone?
+
+    \item \textbf{RQ3:} What are the most influential vehicle attributes driving fuel efficiency predictions, as identified through SHAP, LIME, and permutation importance, and to what extent do these three methods agree with one another?
+
+    \item \textbf{RQ4:} What practical, actionable insights can be derived from the explainability analysis for automotive engineers, environmental regulators, and consumers?
+\end{itemize}
+
+\subsubsection{Research Objectives}
+
+The primary objectives of this research are to:
+
+\begin{itemize}
+    \item Design and implement a reproducible, end-to-end machine learning pipeline for predicting combined vehicle fuel efficiency from specification data, encompassing data cleaning, feature engineering, model training, hyperparameter tuning, and evaluation.
+
+    \item Benchmark 14--17 supervised regression algorithms under a consistent experimental protocol and identify the top-performing model using $R^2$, RMSE, and MAE.
+
+    \item Conduct a controlled ablation study quantifying the marginal contribution of engineered features to predictive accuracy across model families.
+
+    \item Apply and cross-validate three complementary explainable artificial intelligence (XAI) techniques---SHAP, LIME, and permutation importance---to interpret the best-performing model at both global and local levels.
+
+    \item Estimate deterministic CO$_2$ emissions from predicted fuel consumption using fuel-type-specific emission factors, following the approach of Atique et al.~\cite{atique2026explainable}.
+
+    \item Situate the empirical results within the broader literature on machine learning-based fuel efficiency and emissions modeling, and translate them into practical implications for automotive engineers, environmental regulators, manufacturers, and consumers.
+\end{itemize}
+
+\section{Scope and Limitations of the Study}
+
+This thesis focuses on predicting combined vehicle fuel efficiency (MPG) from static vehicle specification attributes---characteristics fixed at manufacture or trim level, including engine displacement, cylinder count, drivetrain, transmission type, vehicle class, and model year---rather than dynamic, real-time driving data such as GPS trajectories, OBD-II sensor streams, or ECU telemetry. Consistent with the framework of Atique et al.~\cite{atique2026explainable}, the resulting models should therefore be viewed as specification-based fuel efficiency predictors rather than dynamic real-world consumption models. While static specification-based models are well suited to early-stage vehicle design, fleet-level screening, and regulatory benchmarking without costly telemetry hardware, they cannot account for variations introduced by driving style, traffic congestion, road gradient, weather, or ambient temperature.
+
+Similarly, the CO$_2$ figures estimated in this study represent direct tailpipe emissions derived deterministically from predicted fuel consumption via standard fuel-type-specific emission factors. Upstream emissions from fuel extraction, refining, vehicle manufacturing, distribution, and, for electric vehicles, electricity generation lie outside the scope of this work. Because the analysis relies on a publicly available vehicle specification dataset, it may not reflect the composition of every regional automotive market. Dataset-specific constraints, including pronounced imbalances across fuel types, drivetrain configurations, and vehicle classes, are detailed in Chapter~3 and revisited during the interpretation of findings in Chapter~5, and should be kept in mind when generalizing the results to other markets or operating conditions.
+
+\section{Significance of the Study}
+
+The contributions of this thesis span methodological, interpretability, and practical dimensions:
+
+\begin{itemize}
+    \item \textbf{Methodological significance:} The study offers a rigorously benchmarked, reproducible comparison across a wide range of machine learning algorithms on structured automotive data, paired with a controlled ablation experiment that isolates the empirical impact of engineered features---a combination that remains relatively uncommon in prior work~\cite{atique2026explainable}.
+
+    \item \textbf{Interpretability significance:} By integrating and cross-validating three complementary XAI techniques---SHAP, LIME, and permutation importance---the study establishes more dependable interpretability conclusions than single-method analyses, directly addressing a well-documented weakness in earlier research~\cite{atique2026explainable}\cite{mangalathu2020failure}.
+
+    \item \textbf{Practical significance:} The findings yield concrete guidance for three stakeholder groups: automotive manufacturers can apply the insights to target efficiency gains during powertrain and platform design, environmental regulators can draw on the evidence for emissions benchmarking and policy formulation, and consumers gain transparent, attribute-level explanations to inform vehicle purchasing choices.
+\end{itemize}
+
+\section{Thesis Organization}
+
+The remainder of this thesis is organized into five chapters. Chapter~2 reviews the literature on machine learning-based fuel efficiency prediction, vehicle emissions modeling, and explainable AI in automotive applications, establishing the research gaps addressed by this study. Chapter~3 details the research methodology, covering the dataset, preprocessing pipeline, feature engineering design, experimental protocol, candidate models, hyperparameter tuning strategy, evaluation metrics, and explainability framework.
+
+Chapter~4 presents the experimental results, including exploratory data analysis (EDA), baseline and tuned model comparisons, the feature-engineering ablation study, and a detailed interpretation of the top-performing model using SHAP, LIME, and permutation importance. Chapter~5 discusses these findings in relation to prior literature, examines their practical implications for automotive engineering and environmental sustainability, and evaluates the study's limitations. Finally, Chapter~6 concludes the thesis by summarizing its principal contributions, providing direct answers to the four research questions, and outlining directions for future research.

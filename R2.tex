@@ -1,0 +1,176 @@
+\section{Overview}
+
+This chapter reviews the literature on machine learning--based prediction of vehicle fuel efficiency and CO$_2$ emissions, alongside the application of explainable AI techniques in automotive and energy engineering. Following the thematic organization used by Atique et al.~\cite{atique2026explainable}, the review is structured into four areas: traffic-level and physics-inspired methods (Section~2.3), vehicle-level machine learning approaches (Section~2.4), deep learning architectures (Section~2.5), and explainable AI in automotive and emissions modeling (Section~2.6). The chapter concludes with a comparative summary of prior studies (Section~2.7) and a synthesis of the research gap in light of the reviewed work (Section~2.8).
+
+\section{Climate Change, Transportation, and CO$_2$ Emissions}
+
+Climate change poses substantial threats to ecosystems, economic stability, and human well-being, constraining the resilience of global food, water, and energy systems~\cite{atique2026explainable}\cite{schleussner2016differential}. Carbon dioxide and other greenhouse gases are the primary drivers of this warming, and the transport sector consistently ranks among the largest contributors, generating roughly one-quarter of global CO$_2$ emissions and consuming more than 60\% of the world's oil~\cite{atique2026explainable}\cite{johnson2010review}\cite{florini2011international}. Passenger cars and vans alone account for approximately 48\% of global transportation-related CO$_2$ emissions, surpassing heavy freight, international shipping, and aviation combined~\cite{atique2026explainable}\cite{huh2023oh}. Beyond climate impacts, vehicular exhaust contributes directly to ambient air pollution and associated respiratory and cardiovascular diseases~\cite{atique2026explainable}\cite{eren2024predicting}\cite{world2026health}.
+
+Although electric and hybrid vehicle adoption has accelerated in recent years~\cite{coffman2017electric}, gasoline- and diesel-powered internal combustion engine vehicles remain widespread across both passenger and commercial fleets~\cite{park2023development}. At the same time, volatile fuel prices impose continuing financial strain on individual motorists and fleet operators alike~\cite{atique2026explainable}. Together, these environmental and economic pressures underscore the need for accurate, scalable methods to estimate and ultimately reduce vehicle fuel consumption.
+
+\section{Traffic-Level and Physics-Inspired Approaches}
+
+Existing methods for estimating fuel efficiency and emissions fall broadly into traffic-level approaches, which operate at the road-network aggregate scale, and vehicle-level approaches, which model individual vehicles. At the traffic level, Song and Yu~\cite{song2009estimation} introduced a floating-car-data (FCD) framework based on vehicle-specific power (VSP) bin distributions and average travel speed to estimate road-network fuel efficiency without explicit vehicle mass or engine size inputs, achieving a Pearson correlation of 0.920 against observed fuel efficiency indicators along instrumented Beijing arterials. While physically grounded and independent of vehicle-specific modeling, such frameworks rely on second-by-second GPS telemetry and yield aggregate road-segment estimates rather than vehicle-specific predictions.
+
+Portable Emission Measurement Systems (PEMS) offer another physics-oriented route, narrowing the discrepancy between laboratory certifications and real-world emissions by measuring tailpipe output directly under active driving conditions~\cite{mkadziel2024instantaneous}. Yet their substantial equipment cost and operational complexity restrict routine deployment outside specialized research settings. These twin constraints---dependence on costly instrumentation or continuous telemetry, and inability to generate per-vehicle estimates---motivate the transition toward data-driven, specification-based modeling at the individual vehicle level.
+
+\section{Vehicle-Level Machine Learning Approaches}
+
+A growing literature applies machine learning to capture the non-linear relationships linking engine architecture, drivetrain configuration, vehicle class, and fuel consumption for individual vehicles. Abukhalil et al.~\cite{abukhalil2020fuel} trained support vector machines on OBD-II telemetry to predict instantaneous fuel consumption, reaching an RMSE of 2.436, though predictive accuracy declined across heterogeneous fleets. Topić et al.~\cite{topic2022neural} compared polynomial regression with neural network architectures for trip-level fuel prediction using speed, acceleration, and road grade, demonstrating that neural models outperformed simple regression baselines. Hassan et al.~\cite{hassan2023random} showed that Random Forest ensembles generalize reliably for urban vehicular emissions and fuel-consumption modeling across diverse geographic settings ($R^2 = 0.972$).
+
+A notable contribution by Canal et al.~\cite{canal2024machine} evaluated XGBoost, ridge regression, and support vector regression on live engine control unit (ECU) telemetry streamed over cellular networks to a cloud backend. Their best model achieved an $R^2$ of 0.99 and an MAE of 0.23~L/h, outperforming comparable neural baselines with lower computational overhead while classifying driving profiles as economical or non-economical with near-perfect accuracy. Although their study relied on proprietary real-time telemetry rather than static specifications, it established tree-based ensembles as strong candidates for structured automotive modeling, directly informing model selection in the present thesis.
+
+In a specification-focused study, Alhakamy et al.~\cite{alhakamy2023used} applied linear regression to an 11,914-record Kaggle vehicle specification dataset and obtained a competitive RMSE of 1.43, showing that linear baselines remain informative when feature coverage is broad; the authors also connected used-vehicle adoption to lifecycle CO$_2$ reductions via avoided manufacturing emissions. Haghshenas et al.~\cite{haghshenas2025fuel} developed a hybrid LSTM--Multi-Verse Optimizer model for fuel consumption and CO$_2$ prediction from mobile and OBD-interface streams, further illustrating both the predictive potential and the data-acquisition overhead of dynamic telemetry relative to static specification datasets.
+
+\section{Deep Learning Approaches to Fuel Efficiency and Emissions Modeling}
+
+\sloppy 
+Deep learning (DL) architectures, including convolutional and recurrent neural networks, have also been explored for fuel-consumption and emissions prediction. Ananth et al.~\cite{zhu2024research} reviewed DL implementations in TensorFlow across maritime vessels, passenger fleet vehicles, and commercial buildings, concluding that neural architectures capture intricate non-linearities in consumption data while continuing to face challenges in scalability and interpretability. This trade-off aligns with the empirical findings of Grinsztajn et al.~\cite{grinsztajn2022tree}, who showed that tree-based inductive biases match the piecewise-smooth decision surfaces typical of tabular datasets more effectively than standard neural networks. That observation is directly relevant to the present study, which operates on structured, tabular vehicle specifications rather than high-dimensional sensor streams or imagery.
+
+\section{Explainable Artificial Intelligence in Automotive and Emissions Modeling}
+
+As predictive models in automotive engineering and emissions analysis have grown more complex, the demand for interpretability has increased accordingly, driven by the regulatory and engineering stakes of model-informed decisions~\cite{minh2022explainable}\cite{hassija2024interpreting}\cite{chen2025need}. Haque et al.~\cite{haque2025ensemblexai} developed an ensemble XAI pipeline for electric vehicle drive-motor fault classification, integrating recursive feature elimination, SMOTE class balancing, and a seven-learner soft-voting ensemble paired with LIME for local explanations; achieving 94.52\% accuracy on simulated data and 98.48\% on experimental data, their study demonstrated that lightweight, interpretable ensembles can rival or surpass more complex architectures.
+
+Focusing on emissions and efficiency, Ghadi et al.~\cite{ghadi2025explainable} coupled Random Forest with LIME and SHAP to predict smog ratings, reaching an $R^2$ of 0.962 and identifying engine displacement and cylinder count as the foremost predictors---an outcome echoed in Chapter~4 of this thesis. Yoo et al.~\cite{yoo2025machine} evaluated six ML algorithms alongside SHAP, LIME, and odds-ratio analysis on a 953-vehicle Korean dataset, achieving an $R^2$ of 0.998; however, their scope was limited to the Korean market and omitted permutation importance for global cross-validation, a methodological gap addressed directly in the present work. Similarly, Alam et al.~\cite{alam2025deep}\cite{hamed2021fuel} applied SHAP to a dedicated ``CarbonMLP'' neural network on Canadian vehicle data ($R^2 = 0.9938$), highlighting fuel consumption, engine size, and vehicle class as key CO$_2$ determinants, though relying on a single architecture and a single XAI technique.
+
+Most closely aligned with this thesis, Atique et al.~\cite{atique2026explainable} proposed a two-stage framework benchmarking 17 ML and DL models alongside SHAP, LIME, and permutation importance on a 550-vehicle Kaggle dataset. Their tuned CatBoost model achieved a test $R^2$ of 0.9260, identifying cylinder count, front-wheel-drive configuration, and the displacement--year interaction as the primary drivers of combined MPG. They further reported a Spearman rank correlation of $\rho = 0.857$ between SHAP and permutation importance (strong global agreement) compared with $\rho = 0.407$ between SHAP and LIME (weaker alignment reflecting differences between global and local explanation scope)~\cite{atique2026explainable}. This combined template of broad algorithmic benchmarking, controlled feature-engineering ablation, and formally quantified cross-method XAI agreement provides the direct methodological foundation for Chapter~3.
+
+\section{Comparative Summary of Prior Work}
+
+Table~\ref{tab:related_work} summarizes the key prior studies reviewed in this chapter, adopting the comparative structure used by Atique et al.~\cite{atique2026explainable} and providing a structured baseline for situating the present thesis relative to prior work.
+
+\begin{table}[H]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{|p{3cm}|p{2.8cm}|c|c|c|p{2.7cm}|p{4cm}|}
+\hline
+\textbf{Reference} &
+\textbf{Method(s)} &
+\textbf{\# Models} &
+\textbf{XAI} &
+\textbf{Feature Eng.} &
+\textbf{Best Reported Result} &
+\textbf{Key Limitation(s)} \\
+\hline
+
+Song and Yu~\cite{song2009estimation}
+& VSP-bin + FCD
+& 1
+& None
+& No
+& $r = 0.920$
+& Road-segment aggregate only; requires GPS telemetry \\
+\hline
+
+Abukhalil et al.~\cite{abukhalil2020fuel}
+& SVM (OBD-II)
+& 1
+& None
+& No
+& RMSE = 2.436
+& Single model; degrades on heterogeneous fleets \\
+\hline
+
+Topić et al.~\cite{topic2022neural}
+& Polynomial, NN variants
+& 4
+& None
+& No
+& $R^2 = 0.995$
+& Black-box NN; no feature-level explanation \\
+\hline
+
+Hassan et al.~\cite{hassan2023random}
+& RF ensemble
+& 5
+& Feature Importance
+& Yes
+& $R^2 = 0.972$
+& Urban-area scope only \\
+\hline
+
+Alhakamy et al.~\cite{alhakamy2023used}
+& Linear Regression
+& 1
+& None
+& No
+& RMSE = 1.430
+& Linear assumption; cannot capture non-linear drivers \\
+\hline
+
+Canal et al.~\cite{canal2024machine}
+& XGBoost, SVR, Ridge
+& 3
+& None
+& Yes
+& $R^2 = 0.990$
+& Proprietary ECU access; single vehicle tested \\
+\hline
+
+Ghadi et al.~\cite{ghadi2025explainable}
+& RF, EBC
+& 2
+& LIME, SHAP, SHAPash
+& No
+& $R^2 = 0.962$
+& Smog-rating task only \\
+\hline
+
+Haque et al.~\cite{haque2025ensemblexai}
+& Soft-voting ensemble
+& 7
+& LIME
+& Yes
+& Accuracy = 98.48\%
+& Classification only \\
+\hline
+
+Yoo et al.~\cite{yoo2025machine}
+& 6 models
+& 6
+& SHAP, LIME
+& Yes
+& $R^2 = 0.998$
+& Restricted to Korean KEA portal data \\
+\hline
+
+Farooq et al.~\cite{farooq2025interpretable}
+& 10 models
+& 10
+& LIME
+& No
+& $R^2 = 0.916$
+& LIME only; no global SHAP view \\
+\hline
+
+Alam et al.~\cite{alam2025deep}
+& CarbonMLP
+& 1
+& SHAP
+& No
+& $R^2 = 0.993$
+& CO$_2$ target only; single DL model; one XAI method \\
+\hline
+
+Atique et al.~\cite{atique2026explainable}
+& 17 models
+& 17
+& SHAP, LIME, PI
+& Yes
+& $R^2 = 0.926$
+& US dataset only (2014--2024); static specification data \\
+\hline
+
+\end{tabular}
+}
+\caption{Comparative summary of prior work on ML-based vehicle fuel efficiency and emissions prediction}
+\label{tab:related_work}
+\end{table}
+
+\section{Research Gap Revisited}
+
+The studies reviewed above confirm the research gap outlined in Chapter~1. Although existing work has demonstrated strong predictive accuracy~\cite{alhakamy2023used}\cite{canal2024machine} or applied individual explainability tools~\cite{ghadi2025explainable,haque2025ensemblexai,alam2025deep} to vehicle fuel-efficiency and emissions tasks, very few investigations integrate (a) a comprehensive benchmark spanning multiple model families, (b) a controlled empirical ablation isolating the contribution of engineered features, and (c) a triangulated explainability evaluation across three distinct XAI techniques with formally reported rank-correlation statistics. Atique et al.~\cite{atique2026explainable} offer the closest prior realization of this unified design; by independently adapting and re-executing that template across an independent experimental pipeline, this thesis enables both direct comparison of results and an evaluation of whether the conclusions reported in~\cite{atique2026explainable} generalize reliably.
+
+\section{Chapter Summary}
+
+This chapter reviewed prior research across traffic-level, vehicle-level, and deep-learning approaches to fuel efficiency and CO$_2$ emissions modeling, together with recent applications of explainable AI in automotive engineering. Across this literature, tree-based ensembles consistently stand out on structured vehicle data, domain-informed feature engineering provides targeted gains, and multi-method XAI validation remains underutilized. Drawing directly on these insights---and particularly on the two-stage framework of Atique et al.~\cite{atique2026explainable}---Chapter~3 details the dataset, modeling pipeline, and explainability methodology implemented in this thesis.
