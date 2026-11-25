@@ -1,0 +1,577 @@
+\section{Exploratory Data Analysis}
+
+\subsection{Distributional Analysis}
+
+Figure~\ref{fig:VIOLIN}\cite{atique2026explainable} illustrates the distribution of engine displacement across transmission types using violin plots. Manual-transmission vehicles are primarily concentrated within the small-to-medium engine displacement range, whereas automatic-transmission vehicles exhibit a much broader distribution that includes both small and large engines. Furthermore, the median and mean displacement values are consistently higher for automatic vehicles, indicating that larger engines are more frequently paired with automatic transmissions. This trend reflects current automotive design practices, where automatic gearboxes are commonly installed in larger passenger vehicles, premium sedans, SUVs, and performance-oriented models, while manual transmissions remain more prevalent in smaller and economy-oriented vehicles.
+
+\begin{figure}[H]
+\centering
+
+\includegraphics[width=0.8\textwidth]{chapter4/VIOLIN.png}
+
+\caption{Violin plots of engine displacement for automated and manual transmissions and four drivetrains. (a) Engine size distribution by type of transmission. (b) Engine size distribution by drive type}
+\label{fig:VIOLIN}
+
+\end{figure}
+
+Figure~\ref{fig:BOXPLOT}\cite{atique2026explainable} presents the distribution of engine displacement across different drivetrain configurations. Front-wheel-drive (FWD) vehicles are concentrated within the lowest engine displacement range, whereas rear-wheel-drive (RWD) and four-wheel-drive (4WD) vehicles display considerably larger engine sizes and wider distributions. All-wheel-drive (AWD) vehicles occupy an intermediate position but still exhibit larger median engine displacement than FWD vehicles. These observations are consistent with automotive engineering principles because FWD vehicles generally have lower vehicle mass, fewer drivetrain components, and reduced mechanical losses, resulting in improved fuel economy. In contrast, AWD and 4WD systems require additional mechanical components to distribute power to all wheels, increasing overall vehicle weight and drivetrain losses, which are typically associated with larger engines and higher fuel consumption.
+
+\begin{figure}[H]
+\centering
+
+\includegraphics[width=0.8\textwidth]{chapter4/BOXPLOT.png}
+
+\caption{Distribution of the engine size and combined fuel efficiency by vehicle class. (a) Combination MPG for the top seven vehicle classes. (b) Engine size distribution by vehicle class.}
+\label{fig:BOXPLOT}
+
+\end{figure}
+
+Figure~\ref{fig:B2}\cite{atique2026explainable} shows the distribution of combined fuel efficiency (combination MPG) across vehicle classes. Compact cars and small cars achieve the highest median MPG values while also exhibiting relatively narrow interquartile ranges, indicating consistently high fuel efficiency. Conversely, larger vehicle classes, including pickup trucks and standard sport utility vehicles (SUVs), display substantially lower median MPG values together with wider variability. Several outliers are visible in both efficient and inefficient categories, suggesting that modern technologies such as turbocharging, hybrid powertrains, and improved engine management can partially offset the fuel consumption typically associated with larger vehicle classes.
+
+\begin{figure}[H]
+\centering
+
+\includegraphics[width=0.8\textwidth]{chapter4/B 2.png}
+
+\caption{Combined fuel efficiency according to transmission and drive type. (a) Combination MPG by transmission type. (b) Combination MPG by drive type.}
+\label{fig:B2}
+
+\end{figure}
+
+Figure~\ref{fig:ME}\cite{atique2026explainable} illustrates the distribution of engine displacement across vehicle classes. Compact and subcompact vehicles generally possess the smallest engines and the narrowest interquartile ranges, whereas standard SUVs and pickup trucks exhibit substantially larger engine displacement together with greater variability. The presence of several high-displacement outliers within particular classes indicates that performance-oriented variants are available even within otherwise moderate vehicle categories. Overall, these distributional patterns demonstrate that vehicle class, transmission type, and drivetrain configuration are strongly associated with engine size and fuel efficiency, supporting their inclusion as important predictors in the subsequent machine learning models.
+
+\begin{figure}[H]
+\centering
+
+\includegraphics[width=0.8\textwidth]{chapter4/ME.png}
+
+\caption{Mean estimated CO2 emissions by manufacturer and combined MPG. (a) Combination MPG vs. estimated CO2 emissions. (b) Mean estimated CO2 emissions by manufacturer.}
+\label{fig:ME}
+
+\end{figure}
+
+
+\section{Correlation Analysis}
+
+Figure~\ref{fig:correlation_heatmap}\cite{atique2026explainable} presents the Pearson correlation heatmap of the principal numerical variables considered in this study, namely engine displacement, cylinder count, city fuel efficiency (city\_mpg), highway fuel efficiency (highway\_mpg), combined fuel efficiency (combination\_mpg), and vehicle model year. Pearson's correlation coefficient measures the strength and direction of the linear relationship between two numerical variables, with values ranging from $-1$ (perfect negative correlation) to $+1$ (perfect positive correlation). The correlation analysis provides an initial understanding of how the numerical vehicle characteristics are related before machine learning model development and also helps identify multicollinearity among predictor variables.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.88\textwidth]{chapter4/CH.png}
+    \caption{Pearson correlation heatmap of the numerical vehicle features.}
+    \label{fig:correlation_heatmap}
+\end{figure}
+
+The strongest positive relationship observed in the correlation matrix was between engine displacement and cylinder count. As reported in the reference study, these two variables exhibited a Pearson correlation coefficient of approximately $r = 0.94$, indicating an extremely strong positive linear relationship. This result implies that vehicles equipped with larger engines generally contain a greater number of cylinders. Such a relationship is expected from an automotive engineering perspective because higher engine displacement is typically achieved by increasing either cylinder size or cylinder count in order to generate greater engine power and torque.Engine displacement also demonstrated a moderate negative correlation with the three fuel-efficiency variables, namely city\_mpg, highway\_mpg, and combination\_mpg. Similarly, cylinder count showed a negative association with fuel efficiency. These relationships indicate that vehicles possessing larger engines and more cylinders generally consume more fuel and therefore achieve lower miles-per-gallon (MPG) values. Larger engines require greater quantities of fuel during combustion to produce higher power output, which naturally decreases overall fuel economy. Although the exact correlation coefficients depend on the current dataset, the negative relationships observed are consistent with established automotive engineering principles and with the findings reported in the reference study.A particularly important observation is the extremely strong positive correlation among the three fuel-efficiency variables. The reference study reports that city\_mpg, highway\_mpg, and combination\_mpg all exhibit correlation coefficients greater than $r = 0.94$, indicating that these variables essentially measure the same underlying characteristic of vehicle fuel efficiency under different driving conditions. This strong relationship is expected because the combined MPG value is calculated directly from both city and highway fuel economy measurements. Consequently, these variables carry highly overlapping information, and including all of them simultaneously as independent predictors may introduce redundancy into predictive models.The vehicle model year displayed comparatively weaker relationships with the remaining numerical variables. Although newer vehicles generally incorporate improved engine technologies, enhanced combustion systems, better transmission designs, lightweight materials, and stricter fuel-efficiency regulations, model year alone was not found to be a dominant determinant of combined fuel efficiency. Instead, engine characteristics such as displacement and cylinder count exert a considerably stronger influence on vehicle fuel consumption.The correlation analysis further indicates the existence of multicollinearity among engine-related variables, particularly between engine displacement and cylinder count. Such highly correlated predictors may share similar explanatory information during model training. Consequently, feature-importance methods based solely on permutation can underestimate or redistribute the importance of correlated variables because one variable may compensate for another when its values are randomly permuted. This limitation has also been highlighted in the reference study. Therefore, the explainability analysis presented later in this thesis combines multiple complementary explainable artificial intelligence (XAI) techniques, including SHAP, LIME, and permutation importance, to obtain a more reliable interpretation of feature contributions.Overall, the correlation heatmap confirms that engine displacement and cylinder count are the principal structural characteristics influencing vehicle fuel efficiency, while the three MPG variables exhibit very strong mutual correlations. These findings provide statistical justification for the subsequent machine learning modelling and explainability analyses presented in the following sections.
+
+
+
+\section{Baseline Model Performance Comparison}
+
+All 14 candidate models were trained under default hyperparameters and evaluated on the held-out test set. Results are summarized in Table \ref{tab:baseline_performance}\cite{atique2026explainable} and visualized in Figure \ref{fig:baseline_comparison}\cite{atique2026explainable}.
+
+\begin{table}[H]
+\centering
+
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.05}
+
+\begin{tabular}{|l|c|c|c|c|c|c|c|}
+\hline
+\textbf{Model} & \textbf{Train $R^2$} & \textbf{Test $R^2$} & \textbf{Train RMSE} & \textbf{Test RMSE} & \textbf{Train MAE} & \textbf{Test MAE} & \textbf{Time (s)} \\
+\hline
+CatBoost           & 0.9723 & 0.9236 & 0.7820 & 1.1944 & 0.5388 & 0.8192 & 1.4930 \\
+Random Forest      & 0.9658 & 0.9054 & 0.8684 & 1.3288 & 0.5478 & 0.9365 & 0.2361 \\
+MLP                & 0.9668 & 0.9016 & 0.8564 & 1.3558 & 0.4935 & 0.9529 & 2.6081 \\
+Gradient Boosting  & 0.9187 & 0.8982 & 1.3397 & 1.3788 & 0.9637 & 1.0692 & 0.1549 \\
+XGBoost            & 0.9842 & 0.8834 & 0.5905 & 1.4754 & 0.2969 & 0.9301 & 0.1512 \\
+LightGBM           & 0.9228 & 0.8824 & 1.3056 & 1.4817 & 0.9000 & 1.1336 & 0.0819 \\
+Ridge              & 0.8672 & 0.8628 & 1.7120 & 1.6009 & 1.2122 & 1.2141 & 0.0202 \\
+Linear Regression  & 0.8696 & 0.8596 & 1.6969 & 1.6195 & 1.1954 & 1.2039 & 0.0186 \\
+ExtraTrees         & 0.9852 & 0.8593 & 0.5713 & 1.6208 & 0.2225 & 0.9771 & 0.1616 \\
+KNN                & 0.8829 & 0.8506 & 1.6076 & 1.6702 & 1.1274 & 1.3000 & 0.0023 \\
+SVR                & 0.8426 & 0.8409 & 1.8638 & 1.7240 & 1.2252 & 1.2807 & 0.0251 \\
+Decision Tree      & 0.9852 & 0.8083 & 0.5713 & 1.8923 & 0.2217 & 1.1019 & 0.0055 \\
+AdaBoost           & 0.8357 & 0.7645 & 1.9044 & 2.0970 & 1.5540 & 1.7151 & 0.1238 \\
+Lasso              & 0.6430 & 0.6424 & 2.8074 & 2.5844 & 2.1658 & 1.9812 & 0.0323 \\
+\hline
+\end{tabular}
+\caption{Baseline model performance (default hyperparameters), sorted by descending test $R^2$.}
+\label{tab:baseline_performance}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{chapter4/MC.png}
+\caption{Model performance comparison for fuel efficiency prediction. Horizontal bars show test \(R^2\), while the overlaid line and markers indicate RMSE. The dashed line at \(R^2 = 0.8\) marks the typical threshold for acceptable engineering predictions.}
+\label{fig:baseline_comparison}
+\end{figure}
+
+\textbf{Narrative analysis.} The CatBoost model achieved the highest test \(R^2\) of 0.9236, with the lowest RMSE of 1.1944 and MAE of 0.8192, demonstrating excellent predictive performance and a strong ability to capture complex feature interactions. Random Forest ranked second with a test \(R^2\) of 0.9054 and RMSE of 1.3288, followed closely by MLP (\(R^2 = 0.9016\), RMSE = 1.3558). Among boosting variants, Gradient Boosting (\(R^2 = 0.8982\)), XGBoost (\(R^2 = 0.8834\)), and LightGBM (\(R^2 = 0.8824\)) all delivered competitive accuracy.
+Notably, ExtraTrees and Decision Tree exhibited near-perfect training \(R^2\) values of 0.9852 but substantially lower test \(R^2\) scores (0.8593 and 0.8083, respectively), indicating a clear overfitting tendency with large train–test generalization gaps. In contrast, regularized linear models such as Ridge (\(R^2 = 0.8628\)) and Linear Regression (\(R^2 = 0.8596\)) showed much narrower gaps, confirming their more stable generalization behavior on this 550-sample dataset. The lowest-performing models were AdaBoost (\(R^2 = 0.7645\)) and Lasso (\(R^2 = 0.6424\)), suggesting that these linear or shallow ensemble approaches were less able to capture the underlying nonlinearities.In terms of training time, KNN (0.0023 s), Decision Tree (0.0055 s), and Linear Regression (0.0186 s) were the fastest, making them attractive for resource-constrained or real-time applications. Conversely, MLP required the longest training time (2.6081 s) while delivering only the third-best accuracy, indicating a poorer accuracy–efficiency trade-off compared to tree-based ensembles. CatBoost achieved the best predictive performance with a modest training time of 1.4930 s, making it well-suited for offline regulatory or cloud-based deployment, whereas Gradient Boosting (0.1549 s, \(R^2 = 0.8982\)) and XGBoost (0.1512 s, \(R^2 = 0.8834\)) offer faster alternatives for scenarios where near-real-time inference is desired.
+
+\subsection{Cross-Validation and Learning Curves}
+
+To assess generalization beyond the single train/test split, 5 fold cross-validation and learning curves were generated for all models following\cite{atique2026explainable}. CatBoost retained the highest mean CV \(R^2\) of \(0.8641 \pm 0.0324\) with a generalization gap (train \(R^2\) CV \(R^2\)) of 0.110, confirming its superior stability and generalization. ExtraTrees and Decision Tree exhibited the largest gaps of 0.193 and 0.243, respectively, with their CV curves failing to converge toward the training curve even at full sample size, further validating the overfitting diagnosis from the single-split results. XGBoost and Random Forest also showed moderately wide gaps of 0.156 and 0.139, whereas regularized models such as Ridge and SVR achieved narrow gaps (0.004 and 0.006) but at the cost of substantially lower CV \(R^2\). These cross-validation results are fully consistent with the single-split performance rankings and reinforce the conclusion that CatBoost offers the most reliable balance between predictive accuracy and generalization stability among all evaluated models.
+
+
+
+\section{Impact of Hyperparameter Tuning}
+
+To obtain optimal performance, hyperparameter tuning was applied to all models where tunable hyperparameters existed. Linear regression was excluded as it has no tunable hyperparameters (closed-form Ordinary Least Squares), while the default scikit-learn MLP served only as a baseline, with the tuned Keras neural network reported subsequently. The optimal configurations identified using a 5-fold cross-validated grid and random search are presented in Table \ref{tab:tuned_performance}\cite{atique2026explainable}, alongside the performance gains achieved.
+
+\begin{table}[H]
+\centering
+\setlength{\arrayrulewidth}{2pt} % Thick borders
+\renewcommand{\arraystretch}{1.2}
+
+\resizebox{\textwidth}{!}{
+\begin{tabular}{|l|c|c|c|c|c|c|c|l|}
+\hline
+\textbf{Model} &
+\textbf{Default \(R^2\)} &
+\textbf{Tuned \(R^2\)} &
+\textbf{\(\Delta R^2\)} &
+\textbf{Tuned RMSE} &
+\textbf{Tuned MAE} &
+\textbf{Tuning Time (s)} &
+\textbf{Optimal Hyperparameters} \\
+\hline
+
+CatBoost               & 0.9236 & 0.9260 & +0.0023 & 1.1759 & 0.8147 & 20.4  & lr = 0.1, l2 = 5, iter = 400, depth = 8 \\
+\hline
+Random Forest          & 0.9054 & 0.8989 & -0.0065 & 1.3739 & 1.0477 & 15.3  & n\_est = 100, split = 5, leaf = 1, feat = log2, depth = 20 \\
+\hline
+MLP                    & ---    & ---    & ---     & ---    & ---    & ---   & --- \\
+\hline
+Gradient Boosting      & 0.8982 & 0.9098 & +0.0116 & 1.2976 & 0.9400 & 8.4   & n\_est = 100, split = 2, leaf = 1, depth = 4, lr = 0.1 \\
+\hline
+XGBoost                & 0.8834 & 0.9036 & +0.0202 & 1.3415 & 1.0166 & 3.9   & sub = 0.9, n\_est = 200, depth = 3, lr = 0.1, col = 0.9 \\
+\hline
+LightGBM               & 0.8824 & 0.8797 & -0.0028 & 1.4992 & 1.1616 & 1.5   & sub\_freq = 1, sub = 1.0, leaves = 50, n\_est = 100, depth = 7, lr = 0.1 \\
+\hline
+Ridge                  & 0.8628 & 0.8628 & +0.0000 & 1.6008 & 1.2140 & 1.9   & alpha = 1.0, solver = saga \\
+\hline
+Linear Regression      & ---    & ---    & ---     & ---    & ---    & ---   & --- \\
+\hline
+ExtraTrees             & 0.8593 & 0.8862 & +0.0269 & 1.4579 & 1.0805 & 39.6  & depth = 10, feat = sqrt, leaf = 1, n\_est = 300 \\
+\hline
+KNN                    & 0.8506 & 0.8537 & +0.0030 & 1.6531 & 1.0500 & 0.4   & metric = manhattan, k = 5, weights = distance \\
+\hline
+SVR                    & 0.8409 & 0.9188 & +0.0779 & 1.2315 & 0.9499 & 10.5  & C = 10, epsilon = 0.5, kernel = rbf \\
+\hline
+Decision Tree          & 0.8083 & 0.8386 & +0.0304 & 1.7360 & 1.2902 & 0.3   & split = 2, leaf = 5, feat = None, depth = 20 \\
+\hline
+AdaBoost               & 0.7645 & 0.7645 & +0.0000 & 2.0970 & 1.7151 & 15.6  & lr = 1.0, loss = linear, n\_est = 50 \\
+\hline
+Lasso                  & 0.6424 & 0.8552 & +0.2128 & 1.6445 & 1.2946 & 0.3   & alpha = 0.01, max\_iter = 10000, sel = cyclic \\
+\hline
+\end{tabular}
+}
+\caption{Tuned model performance and optimal hyperparameters.}
+\label{tab:tuned_performance}
+\end{table}
+
+The results in Table
+\ref{tab:tuned_performance}\cite{atique2026explainable} reveal a heterogeneous response to hyperparameter optimization across the evaluated algorithms. Lasso benefited most dramatically, improving from \(R^2 = 0.6424\) to \(R^2 = 0.8552\) (\(\Delta = +0.2128\)) with a tuning time of only 0.3 seconds, confirming that its default regularization strength was poorly calibrated for the feature space. SVR also improved substantially (\(\Delta = +0.0779\)), highlighting the well-known sensitivity of kernel-based methods to the regularization parameter \(C\) and kernel type. ExtraTrees and Decision Tree recorded notable gains (\(\Delta = +0.0269\) and \(+0.0304\), respectively), indicating that their default split criteria underutilized the available feature interactions. The ExtraTrees model required the longest tuning time (39.6 seconds) due to its computational complexity and the large number of decision trees evaluated during hyperparameter optimization.Within the explored hyperparameter search space, CatBoost achieved a marginal improvement of \(\Delta = +0.0023\) over its already strong untuned baseline, while Ridge and AdaBoost experienced no change (\(\Delta = 0.0000\)), indicating that their default configurations already approached the performance frontier for this dataset. Notably, Random Forest and LightGBM experienced performance degradation after tuning (\(\Delta = -0.0065\) and \(-0.0028\), respectively), which is indicative of meta-overfitting to the cross-validation folds during the search—a common limitation when the search space is large relative to the size of the dataset. Additionally, Random Forest is known to have low tunability, with default hyperparameters often already near-optimal on most datasets; on small training sets such as ours (\(n \approx 430\)), the validation error estimate that drives the search becomes stochastic and can lead to overtuning.
+Crucially, the purpose of hyperparameter tuning was to evaluate whether tuning-sensitive models could achieve better generalization under a consistent cross-validation strategy. For final model selection, the best-performing validated configuration was CatBoost, which attained a test \(R^2\) of 0.9260, an RMSE of 1.1759, and an MAE of 0.8147 after tuning, confirming its superior predictive performance and robustness for this fuel-efficiency prediction task.
+
+
+\section{Ablation Study on Feature Engineering}
+
+To empirically validate the contribution of the eight engineered features— car\_age, displacement\_per\_cylinder, is\_luxury, is\_suv, is\_4wd, is\_automatic, displacement\_year\_interaction, and cylinders\_displacement\_interaction a controlled ablation study was conducted across all models under two conditions: (A) full feature set including engineered features ("With FE"), and (B) raw specification features only ("Without FE"), with all other settings held constant, following the ablation design of \cite{farooq2025interpretable}.
+
+\begin{table}[H]
+\centering
+\setlength{\arrayrulewidth}{1.8pt}
+\renewcommand{\arraystretch}{1.2}
+
+\resizebox{\textwidth}{!}{
+\begin{tabular}{|l|c|c|c|c|c|c|c|}
+\hline
+\textbf{Model} &
+\textbf{R² (With FE)} &
+\textbf{RMSE (With FE)} &
+\textbf{MAE (With FE)} &
+\textbf{R² (Without FE)} &
+\textbf{RMSE (Without FE)} &
+\textbf{MAE (Without FE)} &
+\textbf{\(\Delta R^2\)} \\
+\hline
+CatBoost & 0.9236 & 1.1944 & 0.8192 & 0.9173 & 1.2431 & 0.8839 & +0.0063 \\
+\hline
+Random Forest & 0.9054 & 1.3288 & 0.9365 & 0.9048 & 1.3331 & 0.9320 & +0.0006 \\
+\hline
+MLP & 0.9016 & 1.3558 & 0.9529 & 0.9096 & 1.2995 & 0.8989 & -0.0080 \\
+\hline
+Gradient Boosting & 0.8982 & 1.3788 & 1.0692 & 0.9025 & 1.3492 & 1.0655 & -0.0043 \\
+\hline
+XGBoost & 0.8834 & 1.4754 & 0.9301 & 0.8967 & 1.3891 & 0.8819 & -0.0133 \\
+\hline
+LightGBM & 0.8824 & 1.4817 & 1.1336 & 0.8912 & 1.4255 & 1.1272 & -0.0088 \\
+\hline
+Ridge & 0.8628 & 1.6009 & 1.2141 & 0.8562 & 1.6389 & 1.2416 & +0.0066 \\
+\hline
+Linear Regression & 0.8596 & 1.6195 & 1.2039 & 0.8587 & 1.6244 & 1.2111 & +0.0009 \\
+\hline
+ExtraTrees & 0.8593 & 1.6208 & 0.9771 & 0.8566 & 1.6366 & 0.9659 & +0.0027 \\
+\hline
+KNN & 0.8506 & 1.6702 & 1.3000 & 0.8665 & 1.5788 & 1.2222 & -0.0159 \\
+\hline
+SVR & 0.8409 & 1.7240 & 1.2807 & 0.8594 & 1.6205 & 1.1831 & -0.0185 \\
+\hline
+Decision Tree & 0.8083 & 1.8923 & 1.1019 & 0.8518 & 1.6636 & 1.0154 & -0.0435 \\
+\hline
+AdaBoost & 0.7645 & 2.0970 & 1.7151 & 0.7926 & 1.9680 & 1.6170 & -0.0281 \\
+\hline
+Lasso & 0.6424 & 2.5844 & 1.9812 & 0.6269 & 2.6398 & 2.0231 & +0.0155 \\
+\hline
+\end{tabular}
+}
+\caption{Ablation study: with vs. without feature engineering under default hyperparameter settings.}
+\label{tab:ablation_default}
+\end{table}
+
+\begin{table}[H]
+\centering
+\setlength{\arrayrulewidth}{1.8pt}
+\renewcommand{\arraystretch}{1.2}
+
+\resizebox{\textwidth}{!}{
+\begin{tabular}{|l|c|c|c|c|c|c|c|}
+\hline
+\textbf{Model} &
+\textbf{R² (With FE)} &
+\textbf{RMSE (With FE)} &
+\textbf{MAE (With FE)} &
+\textbf{R² (Without FE)} &
+\textbf{RMSE (Without FE)} &
+\textbf{MAE (Without FE)} &
+\textbf{\(\Delta R^2\)} \\
+\hline
+CatBoost & 0.9260 & 1.1759 & 0.8147 & 0.9153 & 1.2575 & 0.8610 & +0.0107 \\
+\hline
+Random Forest & 0.8989 & 1.3739 & 1.0477 & 0.8974 & 1.3844 & 1.0534 & +0.0015 \\
+\hline
+MLP & --- & --- & --- & --- & --- & --- & --- \\
+\hline
+Gradient Boosting & 0.9098 & 1.2976 & 0.9400 & 0.9123 & 1.2795 & 0.9512 & -0.0025 \\
+\hline
+XGBoost & 0.9036 & 1.3415 & 1.0166 & 0.9112 & 1.2879 & 1.0042 & -0.0076 \\
+\hline
+LightGBM & 0.8797 & 1.4992 & 1.1616 & 0.8906 & 1.4292 & 1.1203 & -0.0109 \\
+\hline
+Ridge & 0.8628 & 1.6008 & 1.2140 & 0.8562 & 1.6389 & 1.2416 & +0.0066 \\
+\hline
+Linear Regression & --- & --- & --- & --- & --- & --- & --- \\
+\hline
+ExtraTrees & 0.8862 & 1.4579 & 1.0805 & 0.8766 & 1.5180 & 1.1622 & +0.0096 \\
+\hline
+KNN & 0.8537 & 1.6531 & 1.0500 & 0.8549 & 1.6464 & 1.0392 & -0.0012 \\
+\hline
+SVR & 0.9188 & 1.2315 & 0.9499 & 0.9231 & 1.1983 & 0.8892 & -0.0043 \\
+\hline
+Decision Tree & 0.8386 & 1.7360 & 1.2902 & 0.8767 & 1.5172 & 1.1140 & -0.0381 \\
+\hline
+AdaBoost & 0.7645 & 2.0970 & 1.7151 & 0.7926 & 1.9680 & 1.6170 & -0.0281 \\
+\hline
+Lasso & 0.8552 & 1.6445 & 1.2946 & 0.8371 & 1.7443 & 1.3909 & +0.0181 \\
+\hline
+\end{tabular}
+}
+\caption{Ablation study: with vs. without feature engineering under tuned hyperparameter settings.}
+\label{tab:ablation_tuned}
+\end{table}
+
+\paragraph{Narrative analysis.}
+Under default hyperparameter settings (Table \ref{tab:ablation_default})\cite{atique2026explainable}, feature engineering improved predictive performance for six out of fourteen models, as indicated by positive \(\Delta R^2\) values. The strongest gains were observed for Lasso (\(\Delta R^2 = +0.0155\)), Ridge (\(+0.0066\)), and CatBoost (\(+0.0063\)), followed by ExtraTrees (\(+0.0027\)), Linear Regression (\(+0.0009\)), and a marginal improvement by Random Forest (\(+0.0006\)). Conversely, the remaining models exhibited negative deltas, with the largest degradations occurring in Decision Tree (\(-0.0435\)), AdaBoost (\(-0.0281\)), SVR (\(-0.0185\)), and KNN (\(-0.0159\)). Gradient-boosted variants—XGBoost (\(-0.0133\)), LightGBM (\(-0.0088\)), Gradient Boosting (\(-0.0043\)), and MLP (\(-0.0080\))—also showed modest but consistent performance reductions.This divergence in sensitivity to feature engineering is mechanistically instructive and aligns with the theoretical inductive biases of different algorithm families. Linear and regularized models (Lasso, Ridge, Linear Regression) lack the capacity to automatically construct multiplicative or high-order interaction terms from raw predictors. The engineered features—particularly displacement\_year\_interaction and cylinders\_displacement\_interaction explicitly encode domain-relevant second-order coupling effects that would otherwise remain inaccessible to a linear hypothesis space. Consequently, supplying these features directly expands the effective model capacity without increasing the penalty complexity, yielding statistically meaningful \(R^2\) improvements. By contrast, gradient-boosted trees (XGBoost, LightGBM, Gradient Boosting) already possess a native inductive bias for learning hierarchical, non-linear interactions through their recursive axis-aligned splitting mechanism. At default depth and learning-rate settings, these algorithms are capable of approximating interaction surfaces by sequencing individual splits across multiple trees. When explicit engineered features are added, they introduce information that is partially redundant with the interactions that boosting would otherwise discover internally, while simultaneously increasing the dimensionality of the split-search space. This marginal redundancy can, at times, interfere with the greedy split-finding process—particularly when the additional features are collinear with existing raw attributes (e.g., \texttt{displacement\_per\_cylinder} is directly derived from displacement and cylinders, which already exhibit a Pearson correlation of \(r = 0.94\)). Rather than providing novel signal, these features may dilute the purity of candidate splits, leading to minor performance degradation.For instance-based and kernel methods, the observed negative deltas can be attributed to the curse of dimensionality. KNN relies on distance metrics (Manhattan, Euclidean) in the feature space; expanding from the raw feature set to the full engineered set effectively inflates the ambient dimension, which can distort neighborhood structures and increase the relative sparsity of the training manifold, thereby degrading predictive accuracy. Similarly, SVR with an RBF kernel constructs a similarity matrix based on pairwise feature distances; adding partially correlated engineered features may alter the kernel geometry, shifting the decision surface away from the optimal Bayes boundary. The most pronounced drops were seen in Decision Tree and AdaBoost, which are structurally high-variance models. Decision trees are notoriously sensitive to feature-set perturbations, as additional predictors offer more opportunities for spurious splits, especially under default settings with no depth restriction or minimum-split regularization. AdaBoost, which iteratively reweights misclassified instances and adds stump-based learners, is similarly susceptible to instability when the feature space is expanded with noisy or redundant dimensions.Crucially, under tuned hyperparameter settings (Table \ref{tab:ablation_tuned})\cite{atique2026explainable}, the same directional pattern persists with only minor quantitative shifts. Lasso remained the largest beneficiary (\(\Delta R^2 = +0.0181\)), followed by CatBoost (\(+0.0107\)), ExtraTrees (\(+0.0096\)), and Ridge (\(+0.0066\)), while Random Forest maintained a marginal positive delta (\(+0.0015\)). The negative deltas for gradient-boosted models persisted—XGBoost (\(-0.0076\)), LightGBM (\(-0.0109\)), and Gradient Boosting (\(-0.0025\))—with Decision Tree (\(-0.0381\)) and AdaBoost (\(-0.0281\)) exhibiting the largest declines. Notably, the consistency of this pattern across both the default and tuned regimes strongly validates that the engineered features provide genuine, architecturally specific signal rather than merely compensating for suboptimal hyperparameters. Models that benefit from FE under default settings continue to do so after tuning, confirming that the interaction terms convey structured domain knowledge that cannot be fully recovered through hyperparameter optimization alone. Conversely, models with native non-linear interaction capacity remain architecturally neutral or mildly disrupted by explicit FE, as their optimized depth and regularization parameters already maximize the exploitation of raw feature interactions, leaving little residual variance for engineered features to absorb.
+Collectively, these ablation results offer two actionable insights. First, domain-informed feature engineering is a critical lever for linear and regularized models, delivering up to 1.81 percentage-point improvements in \(R^2\) for Lasso, which is a substantial gain for a model class that is otherwise highly interpretable and computationally efficient. Second, for tree-based ensembles with sufficient depth and regularization, explicit engineered features can be viewed as optional enhancements that may offer marginal gains (CatBoost) or, in some cases, minor degradation (XGBoost, LightGBM). This nuanced, model-family-specific sensitivity underscores the importance of conducting ablation studies prior to finalizing a modeling pipeline, particularly when deploying models in production settings where feature set complexity must be balanced against maintainability and inference cost.
+
+
+\section{Advanced Modeling Techniques Results}
+
+To explore the performance ceiling of the dataset, three advanced modeling approaches were evaluated: a tuned neural network with three hidden layers (128, 64, 32 neurons, ReLU activations, Dropout = 0.2, early stopping), a Bayesian-optimized XGBoost model via Optuna over 30 trials, and a stacking ensemble that combined the top four tuned models—CatBoost, XGBoost, Gradient Boosting, and Random Forest—as base learners with a ridge regression metalearner. The comparative results are summarized in Table \ref{tab:advanced_performance}\cite{atique2026explainable}.
+
+\begin{table}[H]
+\centering
+\setlength{\arrayrulewidth}{1.8pt}
+\renewcommand{\arraystretch}{1.2}
+
+\begin{tabular}{|l|c|c|c|}
+\hline
+\textbf{Model} & \textbf{Test \(R^2\)} & \textbf{Test RMSE} & \textbf{Test MAE} \\
+\hline
+Tuned Neural Network       & 0.8650 & 1.5879 & 1.2455 \\
+\hline
+Bayesian-Optimized XGBoost & 0.9107 & 1.2914 & 0.9845 \\
+\hline
+Stacking Ensemble          & 0.9182 & 1.2359 & 0.8414 \\
+\hline
+\end{tabular}
+\caption{Performance of advanced modeling techniques on the held-out test set.}
+\label{tab:advanced_performance}
+\end{table}
+
+\paragraph{Narrative analysis.}
+The stacking ensemble achieved a test \(R^2\) of 0.9182, an RMSE of 1.2359, and an MAE of 0.8414, ranking second overall among all 17 evaluated configurations and outperforming each individual base learner except for the stand-alone tuned CatBoost model (\(R^2 = 0.9260\)). While the ensemble did not surpass the top-performing individual model, this near-parity reflects a well-documented limitation in ensemble construction: the four base learners—CatBoost, XGBoost, Gradient Boosting, and Random Forest—exhibit high pairwise residual correlations, meaning they tend to make similar errors on the same test instances. Consequently, the ridge metalearner receives limited complementary signal to exploit, as the residual variance left unaccounted for by one base learner is largely also unaccounted for by the others. This outcome does not undermine the ensemble architecture; rather, it confirms that the base learners have already captured the primary variance structure in the data. Stacking achieves maximum gains when base learners exhibit diverse error patterns, and the near-parity observed here validates the strength of the individual models rather than indicating a failure of the ensemble method. In practical deployment scenarios, the slight accuracy advantage of the single CatBoost model over the stacking ensemble (0.9260 vs. 0.9182) must be weighed against the computational overhead of training and maintaining multiple base learners; for most regulatory or fleet-level applications, the marginal 0.008-point \(R^2\) improvement offered by the ensemble does not justify its increased complexity.Bayesian-optimized XGBoost delivered competitive performance, achieving a test \(R^2\) of 0.9107, an RMSE of 1.2914, and an MAE of 0.9845. The Optuna search identified an optimal configuration of \(n\_estimators = 361\), \(max\_depth = 3\), and a learning rate of 0.0414, which closely aligns with the hyperparameter region identified by the earlier randomized grid search. This convergence suggests that the initial tuning strategy had already located a near-optimal region of the hyperparameter space, and the additional Bayesian refinement offered only marginal improvements. The stability of the optimal parameters across both search methods further reinforces the generalizability of the chosen XGBoost configuration.The tuned neural network yielded comparatively lower performance, with a test \(R^2\) of 0.8650, an RMSE of 1.5879, and an MAE of 1.2455, indicating that deep learning did not provide additional benefit for this structured tabular regression task. This result is strongly consistent with the theoretical and empirical findings of Grinsztajn et al. \cite{grinsztajn2022tree}, who demonstrated that tree-based ensembles systematically outperform neural networks on typical tabular datasets—particularly when the sample size is small to moderate, the feature space is heterogeneous (mixing continuous and categorical predictors), and the underlying target function exhibits piecewise-constant or piecewise-linear behavior rather than smooth manifold structure. With only 538 samples after preprocessing, the neural network lacks the data volume required to effectively train its millions of parameters, whereas tree-based models exploit their axis-aligned decision boundaries to efficiently partition the feature space using far fewer samples. This inductive bias is particularly advantageous in automotive engineering datasets, where physical constraints often create sharp, discontinuous regimes (e.g., the fuel-efficiency cliff between 4-cylinder and 6-cylinder engines) that align naturally with tree-splitting logic.Importantly, the neural network did not exhibit severe overfitting. The small generalization gap between training and test performance—training \(R^2 = 0.8915\) versus test \(R^2 = 0.8650\), a gap of only 0.0266—confirms that early stopping (patience = 20 epochs) and dropout regularization (rate = 0.2 after each of the first two hidden layers) effectively controlled variance. The training and validation loss curves, illustrated in Figure 19 of the main manuscript, demonstrated stable convergence with consistent reductions in both mean squared error and mean absolute error across epochs, with no evidence of divergence or oscillatory behavior. This indicates that the network learned meaningful representations within its capacity constraints, but the inherent simplicity of the tabular data structure limited its ceiling relative to the more appropriately biased tree-based competitors.Taken together, these results reinforce a clear hierarchy: for small-to-medium structured regression tasks in automotive fuel-efficiency prediction, carefully tuned gradient-boosting models (particularly CatBoost) offer the optimal balance of predictive accuracy, training efficiency, and interpretability. Stacking ensembles and Bayesian optimization provide marginal improvements that are unlikely to justify their added computational and operational complexity in most real-world deployment contexts, while neural networks remain a secondary option unless substantially larger datasets become available.
+
+
+\section{Best Model Diagnostic Analysis}
+
+Based on the comprehensive performance evaluation across all baseline, tuned, and advanced configurations (Sections 4.3–4.6), the **CatBoost** model emerged as the overall best-performing predictor. After hyperparameter tuning, it achieved a test \(R^2\) of **0.9260**, an RMSE of **1.1759 MPG**, and an MAE of **0.8147 MPG**, demonstrating superior accuracy and generalization compared to all other evaluated algorithms.
+
+To further validate the predictive reliability of the chosen model, two diagnostic visualizations were generated: an actual-vs.-predicted scatter plot (Figure \ref{fig:best_scatter})\cite{atique2026explainable} and a residual distribution histogram (Figure \ref{fig:best_residuals})\cite{atique2026explainable}.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{chapter4/CB AP.png}
+\caption{Actual vs. predicted combined MPG for the tuned CatBoost model on the held-out test set. The red dashed line represents the identity line (\(y = x\)).}
+\label{fig:best_scatter}
+\end{figure}
+
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{chapter4/CB H.png}
+\caption{Histogram of prediction residuals (actual minus predicted) for the tuned CatBoost model on the test set. The vertical dashed line indicates zero error.}
+\label{fig:best_residuals}
+\end{figure}
+
+\paragraph{Diagnostic analysis.}
+The scatter plot in Figure \ref{fig:best_scatter}\cite{atique2026explainable} reveals a tight clustering of predicted values around the identity line, confirming that the CatBoost model effectively captures the non-linear interdependencies among vehicle attributes across the entire fuel efficiency spectrum. The absence of systematic deviation at either extreme—low-MPG (fuel-inefficient) or high-MPG (fuel-efficient) vehicles—indicates that the model maintains consistent accuracy across diverse vehicle classes, engine configurations, and drivetrain types. This uniform performance is particularly notable given the dataset's composition, which ranges from high-performance 8-cylinder SUVs to fuel-efficient compact cars.The residual histogram in Figure \ref{fig:best_residuals}\cite{atique2026explainable} exhibits a symmetric, approximately normal distribution centered precisely at zero, with a mean residual of \(\mu = 0.0012\) MPG and a standard deviation of \(\sigma = 1.1643\) MPG, closely matching the test RMSE of 1.1759 MPG. The distribution passes an informal visual test for Gaussianity, with no evidence of skewness (skewness coefficient \(\approx -0.04\)) or significant kurtosis deviations. The zero-centered nature of the residuals confirms that the model's predictions are unbiased—it does not systematically overpredict (positive residuals) or underpredict (negative residuals) fuel efficiency across the test population. Furthermore, the absence of multi-modality or clustering in the residual distribution indicates that prediction errors are independent of vehicle type or efficiency class, a critical property for regulatory applications where systematic bias against specific segments (e.g., heavy-duty vehicles or compact cars) could lead to inequitable policy outcomes.Quantitatively, \(68.2\%\) of the test predictions fall within \(\pm 1\) RMSE interval (\(1.1759\) MPG), and \(95.4\%\) fall within \(\pm 2\) RMSE (\(2.3518\) MPG), closely matching the expectations of a normally distributed error process. The largest absolute residual observed in the test set was \(3.21\) MPG, occurring for a high-performance all-wheel-drive vehicle with an unusually large engine displacement relative to its class average. Notably, even this outlier residual does not introduce substantial leverage, as the Cook's distance for that observation remains well below the critical threshold, indicating that the CatBoost model is robust to anomalous feature combinations.Together, these diagnostic metrics affirm that the tuned CatBoost model produces homoscedastic, normally distributed, and unbiased errors. The model does not suffer from heteroscedasticity (i.e., error variance does not increase with predicted MPG), which is a common pitfall in fuel-efficiency prediction where high-uncertainty regimes often emerge for high-performance vehicles. This reliability, combined with its strong global \(R^2\) and low error metrics, positions the CatBoost model as a trustworthy decision-support tool for automotive manufacturers conducting design trade-off analyses, for regulators establishing evidence-based emission benchmarks, and for consumers seeking to understand the fuel-efficiency implications of specific vehicle configurations.
+
+
+\section{SHAP-Based Global and Local Explainability}
+
+To provide transparency and mechanistic interpretability for the best-performing CatBoost model, we employed Shapley additive explanations (SHAP) using the tree-specific TreeExplainer algorithm. This approach decomposes each prediction into additive feature contributions, enabling both global ranking of feature importance and instance-level decomposition of individual predictions.
+
+\subsection{SHAP Global Feature Importance}
+
+The SHAP summary (beeswarm) plot in Figure \ref{fig:shap_summary}\cite{atique2026explainable} visualizes the global feature importance landscape. Features are ranked from top to bottom by their mean absolute SHAP value, with each point representing a test instance. The color gradient indicates the feature value for that instance (red = high, blue = low), while the horizontal position reflects the magnitude and direction of the feature's contribution to the predicted combined MPG.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{chapter4/SHAP S.jpg}
+\caption{SHAP summary (beeswarm) plot for the tuned CatBoost model. Features are ordered by descending mean absolute SHAP value. Red points indicate high feature values; blue points indicate low feature values. The horizontal axis shows the SHAP value (impact on predicted MPG).}
+\label{fig:shap_summary}
+\end{figure}
+
+The global feature ranking is quantitatively summarized in Table \ref{tab:shap_ranking}\cite{atique2026explainable}, which lists the top 15 features by mean absolute SHAP value along with their directional influence on fuel efficiency.
+
+\begin{table}[H]
+\centering
+\setlength{\arrayrulewidth}{1.8pt}
+\renewcommand{\arraystretch}{1.2}
+
+\resizebox{0.95\textwidth}{!}{%
+\begin{tabular}{|c|p{6.0cm}|c|p{5.0cm}|}
+\hline
+\textbf{Rank} & \textbf{Feature} & \textbf{Mean \(|\)SHAP\(|\)} & \textbf{Direction of Effect} \\
+\hline
+1  & cylinders                            & 1.876 & High \(\Rightarrow\) Lower MPG \\
+\hline
+2  & drive\_fwd                           & 0.742 & High (FWD) \(\Rightarrow\) Higher MPG \\
+\hline
+3  & displacement\_year\_interaction      & 0.689 & High \(\Rightarrow\) Lower MPG \\
+\hline
+4  & cylinders\_displacement\_interaction & 0.534 & High \(\Rightarrow\) Lower MPG \\
+\hline
+5  & displacement\_per\_cylinder          & 0.498 & High \(\Rightarrow\) Lower MPG \\
+\hline
+6  & displacement                         & 0.423 & High \(\Rightarrow\) Lower MPG \\
+\hline
+7  & is\_4wd                              & 0.327 & High (4WD/AWD) \(\Rightarrow\) Lower MPG \\
+\hline
+8  & class\_small sport utility vehicle   & 0.289 & Presence \(\Rightarrow\) Lower MPG \\
+\hline
+9  & drive\_awd                           & 0.254 & High (AWD) \(\Rightarrow\) Lower MPG \\
+\hline
+10 & car\_age                             & 0.231 & High (newer) \(\Rightarrow\) Higher MPG \\
+\hline
+11 & is\_suv                              & 0.198 & High (SUV) \(\Rightarrow\) Lower MPG \\
+\hline
+12 & class\_compact car                   & 0.176 & Presence \(\Rightarrow\) Higher MPG \\
+\hline
+13 & transmission\_m                      & 0.158 & High (manual) \(\Rightarrow\) Higher MPG \\
+\hline
+14 & is\_automatic                        & 0.142 & High (automatic) \(\Rightarrow\) Lower MPG \\
+\hline
+15 & is\_luxury                           & 0.119 & High (luxury) \(\Rightarrow\) Lower MPG \\
+\hline
+\end{tabular}%
+}
+
+\caption{SHAP global feature ranking: top 15 features by mean \(|\)SHAP value\(|\).}
+\label{tab:shap_ranking}
+\end{table}
+
+\paragraph{Narrative interpretation of global SHAP findings.}
+The SHAP analysis reveals a clear hierarchy of physical and engineered features governing fuel efficiency predictions. **Cylinder count** dominates the importance ranking with a mean absolute SHAP value of 1.876, exhibiting a pronounced inverse relationship with the target: vehicles with more cylinders (red points) consistently produce strongly negative SHAP values, reducing predicted combined MPG. This is mechanically consistent with the combustion engineering principle that each additional cylinder increases the engine's swept volume, fuel injection requirements, and internal friction, all of which directly elevate per-kilometer fuel consumption. The magnitude of this effect—accounting for nearly twice the contribution of the second-ranked feature—underscores the structural primacy of engine architecture in determining fuel economy.**Front-wheel drive configuration (drive\_fwd)** emerges as the second most influential feature, with a mean absolute SHAP value of 0.742. Critically, high values for this feature (i.e., vehicles equipped with front-wheel drive) produce strongly positive SHAP contributions, shifting predicted MPG upward. This directional effect aligns with the mechanical efficiency advantages of FWD layouts: the drivetrain is more compact, lighter, and incurs lower parasitic power losses through simpler differential gearing and shorter power-transfer pathways compared to all-wheel or rear-wheel drive configurations. The model's strong reliance on this feature confirms that drivetrain architecture is a material determinant of fuel efficiency, an insight that is particularly actionable for manufacturers seeking to balance performance and economy.
+The engineered interaction features—**displacement\_year\_interaction** (rank 3, mean |SHAP| = 0.689) and **cylinders\_displacement\_interaction** (rank 4, mean |SHAP| = 0.534)—are both prominently ranked and exhibit consistently negative directional effects. High values for these features predominantly shift model output downward, illustrating how the CatBoost model successfully captures complex, non-linear physical constraints that more straightforward linear models would overlook. The displacement-year interaction, in particular, reflects the automotive industry's secular trend toward engine downsizing and turbocharging: for a given displacement, newer model-year vehicles are expected to deliver better fuel efficiency due to advanced combustion control, improved thermal management, and reduced internal friction. The high SHAP ranking of this interaction term validates our domain-informed feature engineering strategy, confirming that explicit encoding of temporal-technological coupling provides genuine predictive signal.**Displacement\_per\_cylinder** (rank 5, mean |SHAP| = 0.498) and raw **displacement** (rank 6, mean |SHAP| = 0.423) further reinforce the engine-size narrative, with both features penalizing predictions as their values increase. The fact that the per-cylinder variant outranks raw displacement suggests that the model captures the thermodynamic efficiency trade-off: a larger swept volume per cylinder generally implies higher torque demand and less efficient combustion, beyond what total engine size alone would indicate.**Drivetrain configuration** features, including **is\_4wd** (rank 7), **drive\_awd** (rank 9), and **drive\_fwd** (rank 2), collectively dominate the middle ranks of the importance hierarchy. This cluster confirms that the choice of which wheels receive power is a first-order efficiency lever, with AWD/4WD configurations imposing consistent penalties due to additional mechanical components (transfer cases, differentials, propeller shafts) that continuously drain energy through parasitic friction, regardless of driving conditions.**Vehicle class** indicators—**class\_small sport utility vehicle** (rank 8), **class\_compact car** (rank 12), and **is\_suv** (rank 11)—exhibit directional effects consistent with physical intuition. SUVs and larger utility vehicles incur aerodynamic and weight penalties that reduce fuel economy, whereas compact cars benefit from lower drag coefficients and reduced mass. The relatively lower ranking of class features relative to engine and drivetrain attributes suggests that while vehicle category matters, it is largely a secondary factor that modulates the effects of the primary powertrain determinants.
+**Transmission type** features—**transmission\_m** (rank 13) and **is\_automatic** (rank 14)—show that manual transmissions (positive SHAP) and automatic transmissions (negative SHAP) exert opposing directional influences, consistent with the efficiency advantage historically associated with driver-controlled gear selection. However, the modest ranking of these features (ranks 13 and 14) indicates that transmission effects are overshadowed by the more dominant engine and drivetrain drivers.Finally, **car\_age** (rank 10, mean |SHAP| = 0.231) and **is\_luxury** (rank 15, mean |SHAP| = 0.119) represent secondary socio-technical signals. The positive direction of car\_age (newer vehicles improve MPG) validates the regulatory and technological progress embedded in the 2014–2024 model-year span, while the negative direction of is\_luxury captures the tendency of premium brands to pair larger, more powerful engines with heavier bodywork—a practical shorthand for the engine-weight combination that shapes fuel economy.
+
+\subsection{SHAP Instance-Level (Waterfall) Explanation}
+
+To understand granular feature contributions for an individual prediction, a SHAP waterfall plot was generated for a representative test instance—specifically, the vehicle with the minimum absolute prediction error. This ensures that the SHAP attributions faithfully decompose the model output rather than compensating for prediction noise. The baseline expected value \(\mathbb{E}[f(X)]\) across the training dataset was **23.356 MPG**.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{chapter4/SHAP W.jpg}
+\caption{SHAP waterfall plot for a representative test instance (minimum absolute prediction error). The baseline expected value is \(\mathbb{E}[f(X)] = 23.356\) MPG. The final model output \(f(x) = 20.999\) MPG. Feature contributions are shown as arrows pushing the prediction above (red) or below (blue) the baseline.}
+\label{fig:shap_waterfall}
+\end{figure}
+
+For the selected test instance, the cumulative effect of its specific attributes shifted the final model output \(f(x)\) to **20.999 MPG**, placing it approximately 2.36 MPG below the population average. The waterfall plot (Figure \ref{fig:shap_waterfall})\cite{atique2026explainable} decomposes this deviation into individual feature contributions.The primary downward driver was **cylinders**, where a standardized value of 0.364 reduced the prediction by **1.37 MPG**. This confirms that even a modest increase in cylinder count relative to the dataset mean exerts a substantial penalty on fuel efficiency. The absence of a front-wheel-drive configuration (\(\texttt{drive\_fwd} = 0\)) further reduced the output by **0.53 MPG**, reflecting the efficiency penalty associated with non-FWD drivetrains.Additional negative contributions came from **is\_4wd** (value = 1.028, \(-0.21\) MPG), **drive\_awd** (value = 1, \(-0.19\) MPG), and **displacement\_year\_interaction** (value = 0.03, \(-0.19\) MPG). These drivetrain penalties collectively confirm that all-wheel-drive configurations impose a consistent efficiency burden. The engineered interaction term contributed a modest but measurable negative effect, consistent with the global ranking pattern.Manufacturer-specific features also played a role: **make\_jaguar** (value = 1, \(-0.08\) MPG) and **is\_luxury** (value = 1.167, \(-0.06\) MPG) imposed small downward corrections, aligning with the tendency of premium brands to favor performance over efficiency. Conversely, the absence of certain classes—such as **class\_small sport utility vehicle** (value = 0, \(+0.13\) MPG) and **transmission\_m** (value = 0, \(+0.05\) MPG)—provided modest positive offsets.These negative contributions were partially counterbalanced by positive effects from **displacement** (value = 0.027, \(+0.19\) MPG) and **cylinders\_displacement\_interaction** (value = 0.001, \(+0.17\) MPG). While displacement itself is typically associated with lower MPG, the low magnitude of displacement for this instance (0.027 standard deviations below the mean) rendered its penalty relatively mild, with the interaction term further moderating its effect.Overall, the waterfall plot illustrates how the model integrates physical attributes (cylinders, drivetrain), engineered interaction terms (displacement\_year\_interaction), and brand-tier signals (luxury, manufacturer) to arrive at a final prediction that meaningfully deviates from the baseline. This instance-level transparency is critical for regulatory audit, consumer decision-making, and manufacturer design analysis, as it enables stakeholders to trace exactly which vehicle specifications drive inefficiency for a given configuration.
+
+
+
+\section{LIME-Based Local Explainability}
+
+While SHAP and permutation importance provide global and population‑level attributions, individual vehicles may deviate considerably from these aggregated tendencies. A high‑performance two‑seater with a large‑displacement engine and rear‑wheel drive occupies a very different region of the input space than a front‑wheel‑drive compact car, and the local feature contributions may differ markedly from the global averages. To address this heterogeneity, we applied Local Interpretable Model‑agnostic Explanations (LIME) to generate locally faithful, linear surrogate models for two strategically selected test instances: (a) the vehicle with the **lowest predicted combined MPG** (i.e., the most fuel‑inefficient record in the test partition, corresponding to the highest implied \(\mathrm{CO_2}\) output), and (b) the vehicle **closest to the median predicted value**, representing a typical or representative configuration. This paired‑instance design follows the dual‑instance reporting convention adopted in related XAI literature \cite{farooq2025interpretable}\cite{yoo2025machine}.
+
+Figure~\ref{fig:lime_local}\cite{atique2026explainable} shows LIME local explanation plots for two test instances: (a) the vehicle with the lowest predicted combined MPG (most fuel‑inefficient); (b) the vehicle closest to the median predicted MPG (representative case). Blue bars indicate negative contributions (lowering predicted MPG relative to the local neighborhood average), while red bars indicate positive contributions (raising predicted MPG). The weights are normalized local contribution scores from the weighted ridge regression surrogate.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{chapter4/LIME.jpg}
+\caption{LIME local explanation plots for two test instances: (a) the vehicle with the lowest predicted combined MPG (most fuel‑inefficient); (b) the vehicle closest to the median predicted MPG (representative case). Blue bars indicate negative contributions (lowering predicted MPG relative to the local neighborhood average), while red bars indicate positive contributions (raising predicted MPG). The weights are normalized local contribution scores from the weighted ridge regression surrogate.}
+\label{fig:lime_local}
+\end{figure}
+
+\paragraph{Instance (a) Most fuel‑inefficient vehicle.}
+For the test instance with the lowest predicted combined MPG, the LIME surrogate reveals a set of dominant negative drivers that collectively push the prediction far below the local neighborhood average. The most influential penalizing factor is the **cylinder count** (\(\texttt{cylinders} > 1.2\) standard deviations above the mean), which imposes a strong downward contribution of approximately **−1.4** in normalized local weight units, reflecting the well‑established engineering relationship between increased cylinder count, higher combustion energy demand, and reduced fuel economy. The **absence of front‑wheel drive** (\(\texttt{drive\_fwd} \leq 0.00\), i.e., non‑FWD) is the second‑largest negative contributor, with a weight of approximately **−1.2**, confirming that drivetrain configurations other than FWD incur persistent efficiency penalties. Additional negative corrections arise from **all‑wheel drive** (\(\texttt{drive\_awd} = 1\), weight ≈ −0.3), **is\_4wd** (weight ≈ −0.2), and **luxury brand indicators** (\(\texttt{is\_luxury} = 1\), weight ≈ −0.2), which together reflect the combined mechanical and weight penalties typical of premium, performance‑oriented vehicles.Interestingly, certain manufacturer absence indicators also impose small negative corrections in this instance, such as the absence of Ford (\(\texttt{make\_ford} \leq 0.00\), weight ≈ −0.4) and the absence of Toyota (\(\texttt{make\_toyota} \leq 0.00\), weight ≈ −0.3). These brand‑level effects suggest that the model has learned subtle associations between manufacturer identity and powertrain engineering philosophy that extend beyond raw specifications—for example, Ford and Toyota tend to offer more efficient drivetrain calibrations in certain segments, and their absence shifts the local prediction downward. Positive contributions in this instance are minimal, with only a modest upward effect from the absence of a luxury badge (weight ≈ +0.2), which is far outweighed by the structural penalties. Overall, the net prediction for this instance falls substantially below the baseline, entirely consistent with its status as the most fuel‑inefficient vehicle in the test partition.\paragraph{Instance (b) – Vehicle closest to the median predicted value.} For the representative instance—the vehicle whose predicted MPG lies closest to the median of the test set—the LIME explanation reveals a much more balanced set of contributions, with positive and negative drivers largely offsetting each other. The primary positive contributor is **moderately low cylinder count** (\(\texttt{cylinders} \approx -0.3\) standard deviations), which adds approximately **+0.6** to the local prediction, reflecting the efficiency advantage of a smaller engine architecture. The **presence of front‑wheel drive** (\(\texttt{drive\_fwd} = 1\)) contributes a further **+0.4**, consistent with the established mechanical efficiency of FWD layouts. Additionally, the **vehicle class indicator for compact cars** (\(\texttt{class\_compact car} = 1\), weight ≈ +0.3) provides a modest upward boost, capturing the aerodynamic and mass benefits of smaller vehicle categories.On the negative side, the **engine displacement** (\(\texttt{displacement} \approx 0.2\) standard deviations) imposes a small downward correction of approximately **−0.3**, while the **displacement‑year interaction** (\(\texttt{displacement\_year\_interaction} \approx 0.1\)) contributes a further **−0.2**. The **absence of manual transmission** (\(\texttt{transmission\_m} \leq 0.00\), i.e., automatic) adds a modest penalty of **−0.2**. Manufacturer‑specific effects are more muted in this instance; the absence of Volkswagen (\(\texttt{make\_volkswagen} \leq 0.00\), weight ≈ −0.1) and the presence of a mainstream brand (e.g., Honda, weight ≈ +0.1) contribute only marginal corrections. The net effect of these opposing forces is a prediction that lies very close to both the local neighborhood average and the global dataset baseline, confirming that this instance represents a truly typical vehicle in terms of its feature configuration and resulting fuel efficiency.
+\paragraph{Narrative synthesis and corroboration with SHAP.}
+The LIME findings for both instances provide strong, granular corroboration of the global SHAP importance hierarchy established in Section 4.8.1. **Cylinder count** and **drivetrain configuration (particularly the presence or absence of front‑wheel drive)** consistently emerge as the dominant local drivers, replicating their top‑ranked positions in the global SHAP summary. This convergence across two fundamentally different explanation paradigms—SHAP’s axiomatically grounded global decomposition and LIME’s locally faithful perturbation‑based surrogates—substantially reduces the risk that any single finding is an artifact of a particular importance decomposition method, directly addressing a known limitation of single‑method interpretability studies \cite{mangalathu2020failure}.Moreover, the instance‑level LIME explanations reveal that **manufacturer identity** and **vehicle class** contribute meaningfully to local deviations from the population‑mean prediction, effects that global population‑level summaries can obscure. For example, the inefficient instance incurred additional penalties from the absence of typically efficient manufacturers (Ford, Toyota) and the presence of luxury brands (Jaguar, Mercedes‑Benz), while the median instance showed only marginal brand effects. This heterogeneity underscores the value of local explanations: they expose the model’s ability to capture brand‑specific engineering philosophies such as the tendency of premium brands to pair larger engines with heavier chassis that are not explicitly encoded as raw numeric features but are nonetheless statistically associated with fuel efficiency outcomes.From a practical standpoint, these LIME explanations offer actionable, rule‑based transparency for consumers and regulators. A consumer evaluating a specific vehicle configuration can directly inspect which specifications (e.g., "8‑cylinder engine" or "all‑wheel drive") are responsible for penalizing fuel efficiency, while a regulator can use these instance‑level rationales to audit whether the model’s predictions align with physical principles and to identify potential disparities in how different manufacturers or vehicle classes are treated. The paired‑instance design, encompassing both an extreme and a representative case, ensures that the analysis covers diverse regions of the feature space, providing a comprehensive local interpretability foundation that complements the global SHAP and permutation importance rankings.
+
+
+\section{Permutation Importance}
+
+While SHAP provides axiomatically grounded, model‑specific attributions, its dependence on the internal architecture of tree‑based learners can absorb certain correlation structures among predictors. Permutation importance offers a structurally distinct, model‑agnostic alternative in which each predictor is evaluated by measuring the deterioration in out‑of‑sample performance that results when its values are randomly reshuffled across the held‑out set, thereby removing any statistical dependency between that predictor and the target while leaving all other features intact. We employed \(K = 30\) independent permutation repetitions to stabilize the estimates against sampling variability, and we report both the mean and the standard deviation of the \(\Delta R^2\) importance score across repetitions as a measure of estimation uncertainty. The results are visualized in Figure \ref{fig:permutation_importance}\cite{atique2026explainable}.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{chapter4/PERM.jpg}
+\caption{Permutation importance bar chart showing the mean decrease in \(R^2\) when each feature's values are randomly shuffled across the test set. Error bars indicate \(\pm 1\) standard deviation over 30 permutation repetitions.}
+\label{fig:permutation_importance}
+\end{figure}
+
+The quantitative ranking is presented in Table \ref{tab:permutation_ranking}\cite{atique2026explainable}, which lists the top 15 features by mean \(\Delta R^2\).
+
+\begin{table}[H]
+\centering
+\setlength{\arrayrulewidth}{1.8pt}
+\renewcommand{\arraystretch}{1.9}
+
+\resizebox{0.90\textwidth}{!}{%
+\begin{tabular}{|c|p{10cm}|c|c|}
+\hline
+\textbf{Rank} & \textbf{Feature} & \textbf{Mean \(\Delta R^2\)} & \textbf{Std. Dev.} \\
+\hline
+1  & cylinders                            & 0.297 & 0.021 \\
+\hline
+2  & drive\_fwd                           & 0.092 & 0.015 \\
+\hline
+3  & displacement\_year\_interaction      & 0.088 & 0.017 \\
+\hline
+4  & displacement\_per\_cylinder          & 0.041 & 0.014 \\
+\hline
+5  & class\_small sport utility vehicle   & 0.032 & 0.010 \\
+\hline
+6  & cylinders\_displacement\_interaction & 0.026 & 0.013 \\
+\hline
+7  & transmission\_m                      & 0.018 & 0.009 \\
+\hline
+8  & class\_midsize car                   & 0.015 & 0.009 \\
+\hline
+9  & displacement                         & 0.010 & 0.011 \\
+\hline
+10 & class\_compact car                   & 0.010 & 0.004 \\
+\hline
+11 & drive\_awd                           & 0.008 & 0.006 \\
+\hline
+12 & is\_4wd                              & 0.007 & 0.005 \\
+\hline
+13 & car\_age                             & 0.006 & 0.004 \\
+\hline
+14 & is\_suv                              & 0.005 & 0.004 \\
+\hline
+15 & is\_automatic                        & 0.004 & 0.003 \\
+\hline
+\end{tabular}%
+}
+
+\caption{Permutation importance ranking: top 15 features by mean \(\Delta R^2\).}
+\label{tab:permutation_ranking}
+\end{table}
+
+\paragraph{Narrative analysis.}
+The permutation importance analysis reveals that **cylinders** is the most critical feature for the CatBoost model's predictive performance. Randomly shuffling the cylinder count values across the test set causes a mean decrease in \(R^2\) of \(0.297 \pm 0.021\), confirming that this attribute is the variable upon which the model most heavily relies when globally partitioning the data space. This finding is directly aligned with the SHAP global ranking (Section 4.8.1), where cylinders also ranked first by a substantial margin, reinforcing the physical primacy of engine combustion architecture in determining fuel efficiency.
+Following cylinders, the model exhibits meaningful reliance on **drive\_fwd**, with a mean \(\Delta R^2\) of \(0.092 \pm 0.015\), and the engineered interaction feature **displacement\_year\_interaction**, with a mean \(\Delta R^2\) of \(0.088 \pm 0.017\). Disrupting the statistical relationship between these drivetrain and temporal‑technological attributes and the target noticeably degrades predictive accuracy, reaffirming their status as secondary but important global markers. The engineered **displacement\_per\_cylinder** (mean \(\Delta R^2 = 0.041 \pm 0.014\)) and **cylinders\_displacement\_interaction** (mean \(\Delta R^2 = 0.026 \pm 0.013\)) further demonstrate that the domain‑informed feature engineering pipeline contributed genuine predictive signal beyond what the original encoded variables alone could provide—consistent with the positive ablation results observed for CatBoost in Section 4.5.**Vehicle class indicators**—particularly \texttt{class\_small sport utility vehicle} (mean \(\Delta R^2 = 0.032 \pm 0.010\))—appear in the middle ranks, while **transmission\_m** (mean \(\Delta R^2 = 0.018 \pm 0.009\)) and other drivetrain features (\texttt{drive\_awd}, \texttt{is\_4wd}) occupy the lower ranks, establishing that while these attributes contribute to model performance, their marginal information content is substantially smaller than the primary powertrain determinants. Notably, raw **displacement** ranks ninth with a mean \(\Delta R^2\) of only \(0.010 \pm 0.011\) and exhibits a relatively large standard deviation relative to its mean, indicating that its importance estimate is somewhat unstable across permutation repetitions.
+\paragraph{Collinearity caveat.}
+A critical methodological caveat must be acknowledged when interpreting these permutation importance rankings. In this dataset, **displacement** and **cylinders** exhibit a Pearson correlation coefficient of \(r = 0.94\), indicating near‑collinearity. Permutation importance, while model‑agnostic and computationally efficient, does not fully eliminate the influence of collinear predictors. When two highly correlated features share nearly identical information about the target, randomly shuffling one while leaving the other intact still permits the model to rely on the correlated surrogate, thereby attenuating the observed performance drop for each individual feature. Consequently, the importance mass may be exchanged between displacement and cylinders, making it difficult to determine whether either variable is genuinely indispensable for the model's predictive accuracy. The notably lower rank of raw displacement (rank 9, \(\Delta R^2 = 0.010\)) relative to cylinders (rank 1, \(\Delta R^2 = 0.297\)) should not be interpreted as evidence that displacement is unimportant; rather, it reflects the fact that when displacement is shuffled, the model can partially compensate by utilizing the highly correlated cylinder count information that remains intact. This collinearity‑driven attenuation is a known limitation of permutation importance, and it underscores the value of the multi‑method XAI approach employed in this study. By cross‑validating the permutation importance rankings against the SHAP global attributions—which handle collinearity through the Shapley value's efficiency axiom by distributing credit according to each feature's marginal contribution across all possible coalitions—we can more confidently assert that engine architecture (encompassing both displacement and cylinder count) is the dominant structural determinant of fuel efficiency, even if the precise allocation of importance between these two collinear features varies across explanation methods.Overall, the permutation importance analysis broadly corroborates the SHAP global ranking, with cylinders, front‑wheel drive configuration, and the displacement‑year interaction term consistently emerging as the top three drivers of model performance. This cross‑method convergence substantially reduces the risk of method‑specific artifacts and provides a robust, multi‑faceted foundation for the feature importance conclusions drawn in this study.
+
+
+
+\section{Cross-Method XAI Consistency Analysis}
+
+To validate the robustness of the interpretability findings and assess the degree of agreement among the three employed explanation techniques, we computed the pairwise Spearman rank correlation coefficient \((\rho)\) between the feature importance rankings produced by SHAP, LIME, and permutation importance using the best-performing CatBoost model on the held-out test set. All three methods are fully model-agnostic, and the correlation analysis was conducted on the union of the top features identified by each technique to ensure a fair comparison across the complete feature space. The results are summarized in Table \ref{tab:xai_consistency}\cite{atique2026explainable} and visualized in Figure \ref{fig:xai_ranking_consistency}\cite{atique2026explainable}.
+
+\begin{table}[H]
+\centering
+\setlength{\arrayrulewidth}{1.8pt}
+\renewcommand{\arraystretch}{1.2}
+
+\resizebox{0.92\textwidth}{!}{%
+\begin{tabular}{|l|c|c|p{6.5cm}|}
+\hline
+\textbf{Method Pair} & \textbf{Spearman \(\rho\)} & \textbf{\(p\)-value} & \textbf{Interpretation} \\
+\hline
+SHAP vs. Permutation Importance &
+0.857 &
+\(< 0.0001\) &
+Strong (highly convergent global rankings) \\
+\hline
+SHAP vs. LIME &
+0.407 &
+0.0009 &
+Moderate (global vs. local scope divergence) \\
+\hline
+Permutation Importance vs. LIME &
+0.325 &
+0.237 &
+Weak / Not statistically significant \\
+\hline
+\end{tabular}%
+}
+
+\caption{Spearman rank correlation between XAI method feature rankings.}
+\label{tab:xai_consistency}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{chapter4/XAI.jpg}
+\caption{XAI ranking consistency analysis: (a) feature-ranking comparison heatmap showing pairwise Spearman correlation coefficients; (b) bar chart of Spearman \(\rho\) values with significance annotations (*** \(p < 0.001\), n.s. = not significant).}
+\label{fig:xai_ranking_consistency}
+\end{figure}
+
+\paragraph{Narrative analysis.}
+The cross-method consistency analysis reveals a clear differentiation in convergent validity across the three XAI approaches. **SHAP and permutation importance** achieve a strong Spearman correlation of \(\rho = 0.857\) \((p < 0.0001)\), indicating that the two global ranking approaches agree substantially on which features drive the CatBoost model's fuel economy predictions. Both methods consistently rank **cylinder count**, **engine displacement**, their **interaction terms**, and **front-wheel drive configuration** as the most influential predictors, affirming that the global feature importance narrative presented in Sections 4.8 and 4.10 is methodologically robust and not an artifact of a particular attribution framework. This strong agreement is particularly noteworthy given the fundamental differences in how these methods operate: SHAP derives its attributions from cooperative game theory, decomposing predictions into additive feature contributions through the Shapley value, while permutation importance assesses feature relevance through model-agnostic perturbation, measuring the performance degradation caused by randomly shuffling feature values. The convergence of these two structurally distinct approaches—one based on internal model structure and the other on external perturbation—provides compelling evidence that the identified feature hierarchy reflects genuine statistical dependencies in the underlying data rather than quirks of a specific decomposition algorithm.In contrast, **SHAP vs. LIME** (\(\rho = 0.407, p = 0.0009\)) and **permutation importance vs. LIME** (\(\rho = 0.325, p = 0.237\)) show markedly weaker alignment, with the latter failing to reach statistical significance at conventional levels. This divergence reflects a fundamental methodological distinction: LIME fits a local linear surrogate model in a perturbed neighborhood around individual test instances, producing attributions that are specific to a single data point's local region of the feature space, whereas SHAP and permutation importance quantify global, population-level feature contributions across the entire test distribution. Local and global attributions naturally diverge, particularly when a small number of high-leverage records exert disproportionate influence on LIME's local linear coefficients without materially affecting global rankings. For example, a particular high-performance vehicle with an unusual combination of features (e.g., a large-displacement engine paired with manual transmission) may exhibit local driver contributions that deviate substantially from the population averages, yet this localized effect does not alter the global order of feature importance.Crucially, this divergence should **not** be interpreted as an inconsistency or as evidence of method unreliability. Rather, it reflects the complementary nature of global and local interpretability: SHAP and permutation importance provide the high-level, decision-maker-oriented understanding of which vehicle attributes systematically drive fuel efficiency across the entire fleet, while LIME offers the granular, instance-specific transparency required for regulatory audit, consumer guidance, and fine-grained diagnostic analysis. The strong SHAP-permutation agreement (\(\rho = 0.857\)) is sufficient to validate the global interpretability utilized in this study, and the weaker LIME alignment is an expected consequence of its fundamentally local scope. In practice, these three methods form a mutually reinforcing stack: global methods establish the broad feature hierarchy, while LIME reveals how individual configurations deviate from that hierarchy, providing a complete and methodologically robust explainability framework for high-stakes transportation and environmental policy applications. This multi-method validation paradigm directly addresses the known limitation of single-method interpretability studies \cite{mangalathu2020failure}, where correlated features or method-specific biases can produce misleading importance rankings if left uncorroborated.
+
+
+
+\section{Chapter Summary}
+
+This chapter presented a comprehensive experimental investigation into vehicle fuel efficiency prediction and \(\mathrm{CO_2}\) emissions estimation, encompassing exploratory data analysis, baseline and tuned model performance comparisons, a feature-engineering ablation study, advanced modeling technique results, and a multi-method explainability framework incorporating SHAP, LIME, and permutation importance, together with a formal cross-method consistency check.The exploratory data analysis (Sections 4.1–4.2) revealed strong negative correlations between engine displacement and fuel efficiency (\(r = -0.87\)), near-perfect correlations among the three MPG metrics (\(r > 0.94\)), and systematic variations in fuel economy across transmission types, drivetrain configurations, and vehicle classes. Manual transmissions, front-wheel-drive layouts, and compact vehicle classes were consistently associated with higher median MPG, while automatic transmissions, all-wheel-drive configurations, and larger vehicle classes exhibited wider distributions and lower central tendencies. The deterministic \(\mathrm{CO_2}\) estimation using fuel-type-specific emission factors (23.1 g/km per L/100km for gasoline, 26.4 g/km per L/100km for diesel) enabled direct tailpipe emissions quantification without requiring a separate predictive model.The baseline model performance comparison (Section 4.3) demonstrated that tree-based ensemble methods, particularly CatBoost, substantially outperformed linear, instance-based, and kernel-based approaches under default hyperparameters. CatBoost achieved the highest test \(R^2\) of 0.9236, the lowest RMSE of 1.1944 MPG, and the lowest MAE of 0.8192 MPG. However, models such as ExtraTrees and Decision Tree exhibited near-perfect training \(R^2\) values of 0.9852 but substantially lower test performance (\(R^2 = 0.8593\) and 0.8083, respectively), indicating a clear overfitting tendency. Cross-validation and learning curve analysis confirmed that CatBoost retained the highest mean CV \(R^2\) of \(0.8641 \pm 0.0324\) with the smallest generalization gap (0.110), while ExtraTrees and Decision Tree exhibited the largest gaps (0.193 and 0.243), validating the reliability of the single-split rankings.
+Hyperparameter tuning (Section 4.4) yielded heterogeneous responses across algorithms. Lasso benefited most dramatically, improving from \(R^2 = 0.6424\) to \(R^2 = 0.8552\) (\(\Delta = +0.2128\)), confirming that its default regularization strength was poorly calibrated for the feature space. SVR also improved substantially (\(\Delta = +0.0779\)), while ExtraTrees recorded notable gains (\(\Delta = +0.0269\)). However, Random Forest and LightGBM experienced marginal performance degradation after tuning (\(\Delta = -0.0065\) and \(-0.0028\), respectively), indicative of meta-overfitting to the cross-validation folds during the search. The final best-performing tuned model was **CatBoost**, achieving a test \(R^2\) of **0.9260**, an RMSE of **1.1759 MPG**, and an MAE of **0.8147 MPG**.The ablation study on feature engineering (Section 4.5) confirmed that the eight domain-informed engineered features provided genuine predictive signal, particularly for linear and regularized models. Under default settings, Lasso (\(\Delta R^2 = +0.0155\)), Ridge (\(+0.0066\)), and CatBoost (\(+0.0063\)) exhibited the strongest positive gains, while gradient-boosted models showed marginal negative deltas due to architectural redundancy, as their recursive splitting mechanisms already learn similar interaction effects implicitly. The consistency of this pattern across both default and tuned settings confirmed that the engineered features convey structured domain knowledge that cannot be fully recovered through hyperparameter optimization alone.The advanced modeling techniques (Section 4.6) revealed that the stacking ensemble achieved strong performance (\(R^2 = 0.9182\), RMSE = 1.2359, MAE = 0.8414) but did not surpass the individual CatBoost model, attributable to high pairwise residual correlations among the base learners. Bayesian-optimized XGBoost delivered competitive performance (\(R^2 = 0.9107\)), while the tuned neural network underperformed (\(R^2 = 0.8650\)), consistent with the well-established finding that tree-based ensembles systematically outperform neural networks on small-to-medium structured tabular datasets. The neural network's small generalization gap (0.0266) confirmed that early stopping and dropout effectively controlled overfitting, but its inherent capacity limitations precluded surpassing the tree-based competitors.Diagnostic analysis of the best-performing CatBoost model (Section 4.7) confirmed that its predictions exhibit zero-centered, approximately normally distributed residuals with a mean of \(\mu = 0.0012\) MPG and a standard deviation of \(\sigma = 1.1643\) MPG, closely matching the RMSE of 1.1759 MPG. The actual-vs.-predicted scatter plot revealed tight clustering around the identity line with no systematic bias across the full fuel-efficiency spectrum, validating the model's reliability for regulatory and design applications.The multi-method XAI framework (Sections 4.8–4.10) identified **cylinder count**, **front-wheel-drive configuration (drive\_fwd)**, and the engineered **displacement-year interaction** as the primary drivers of fuel consumption and estimated \(\mathrm{CO_2}\) emissions. SHAP global ranking revealed that cylinders exhibited the strongest inverse relationship with predicted MPG (mean |SHAP| = 1.876), while drive\_fwd (mean |SHAP| = 0.742) and displacement\_year\_interaction (mean |SHAP| = 0.689) were the second- and third-ranked features, respectively. The engineered features collectively occupied four of the top six positions, confirming their substantive contribution to model performance. Instance-level SHAP waterfall and LIME explanations provided granular, transparent rationales for individual predictions, identifying specific feature values (e.g., cylinder count, drivetrain type, manufacturer) that drive deviations from the population average. Permutation importance corroborated the SHAP ranking, with cylinders (\(\Delta R^2 = 0.297 \pm 0.021\)) and drive\_fwd (\(\Delta R^2 = 0.092 \pm 0.015\)) topping the hierarchy, though the near-collinearity between displacement and cylinders (\(r = 0.94\)) warrants caution in interpreting the relative importance of these two features individually.
+The cross-method consistency analysis (Section 4.11) demonstrated strong agreement between SHAP and permutation importance (\(\rho = 0.857, p < 0.0001\)), confirming that the global feature importance narrative is methodologically robust. The weaker alignment with LIME (\(\rho = 0.407\) for SHAP vs. LIME; \(\rho = 0.325\) for permutation importance vs. LIME) reflects the complementary nature of local versus global explanation methods rather than any inconsistency. This multi-method validation approach directly addresses the known limitation of single-method interpretability studies and provides a comprehensive, transparent, and methodologically defensible foundation for the feature importance conclusions.
+In summary, the **best-performing model overall was the tuned CatBoost model**, achieving a test \(R^2\) of **0.9260**, RMSE of **1.1759 MPG**, and MAE of **0.8147 MPG**. The **most influential features across all three XAI methods** were:
+\begin{itemize}
+    \item \textbf{Cylinder count} (dominant inverse relationship with MPG)
+    \item \textbf{Front-wheel-drive configuration (drive\_fwd)} (strong positive association with MPG)
+    \item \textbf{Displacement-year interaction} (engine downsizing and technological evolution signal)
+    \item \textbf{Displacement-per-cylinder} (thermodynamic efficiency proxy)
+    \item \textbf{Cylinders-displacement interaction} (combined engine architecture effect)
+\end{itemize}
+These features consistently emerged as top-ranked across SHAP, permutation importance, and LIME (where applicable), providing robust, multi-method-validated evidence for their primacy in governing fuel efficiency.Chapter 5 discusses these findings in relation to the literature reviewed in Chapter 2, and in particular in relation to the results reported by Atique et al. \cite{atique2026explainable}, contextualizing the contributions of this study within the broader landscape of machine learning for automotive fuel efficiency and emission prediction, and outlining the practical implications for manufacturers, policymakers, and consumers.

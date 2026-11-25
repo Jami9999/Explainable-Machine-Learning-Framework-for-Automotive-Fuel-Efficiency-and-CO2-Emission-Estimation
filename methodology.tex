@@ -1,0 +1,584 @@
+\section{Overview of the Proposed Framework}
+
+Following the two-stage structure adopted by Atique et al.~\cite{atique2026explainable} this thesis implements an end-to-end pipeline consisting of two stages. Stage~I covers data acquisition, preprocessing, feature engineering, dataset splitting, model training across a broad benchmark of machine learning algorithms, and hyperparameter tuning, culminating in the selection of the best-performing model according to $R^2$, RMSE, and MAE on a held-out test set. Stage~II applies three complementary explainability techniques---SHAP, LIME, and permutation importance---to the best-performing model, producing global feature-importance rankings, instance-level local explanations, and a formal cross-method consistency analysis using Spearman rank correlation. Deterministic CO$_2$ emissions are estimated from predicted fuel consumption using fuel-type-specific emission factors, consistent with the approach of~\cite{atique2026explainable}. Figure~\ref{fig:proposed_framework} summarizes the complete pipeline.\cite{atique2026explainable}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{chapter3/PF.png}
+    \caption{Overview of the proposed two-stage framework for fuel consumption prediction, explainability analysis, and CO$_2$ emission estimation.}
+    \label{fig:proposed_framework}
+\end{figure}
+
+
+\section{Dataset Description}
+
+\subsection{Dataset Source}
+
+The dataset used in this study was obtained from Kaggle as a publicly available secondary dataset. Specifically, the ``Explore Car Performance: Fuel Efficiency Data'' dataset was used for automotive fuel efficiency prediction. Link = " https://www.kaggle.com/datasets/arslaan5/explore-car-performance-fuel-efficiency-data ". The dataset contains 550 vehicle records covering model years from 2014 to 2024. It includes vehicle specifications and performance-related attributes such as city MPG, highway MPG, vehicle class, number of cylinders, engine displacement, drivetrain, fuel type, manufacturer, model, transmission type, and model year. The target variable is \textit{combination\_mpg}, which represents the combined fuel efficiency of a vehicle across city and highway driving conditions.
+The dataset was accessed on 10 January 2026 and is publicly available through the Kaggle platform. Since the dataset consists of static vehicle-specification records and standardized fuel-efficiency values, the present study focuses on specification-based fuel efficiency prediction rather than real-time dynamic fuel consumption modeling.
+
+\subsection{Dataset Composition}
+
+The dataset used in this study contains 550 vehicle records spanning model years from 2014 to 2024. The dataset combines numerical performance and specification variables with categorical vehicle attributes. The numerical variables include city fuel efficiency, highway fuel efficiency, engine cylinder count, engine displacement, and model year. The categorical variables include vehicle class, drivetrain configuration, fuel type, manufacturer, vehicle model, and transmission type. The target variable, \textit{combination\_mpg}, represents the combined fuel efficiency of each vehicle across city and highway driving conditions~\cite{atique2026explainable}.  Table ~\ref{tab:dataset_features} shows dataset feature summary.\cite{atique2026explainable}
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{|p{3.5cm}|p{7.5cm}|p{2.5cm}|}
+\hline
+\textbf{Feature} & \textbf{Description} & \textbf{Type} \\
+\hline
+
+\text{combination\_mpg} &
+Combined city and highway driving fuel efficiency; target variable &
+Numeric \\
+\hline
+
+\text{city\_mpg} &
+Fuel efficiency measured under city driving conditions &
+Numeric \\
+\hline
+
+\text{highway\_mpg} &
+Fuel efficiency measured under highway driving conditions &
+Numeric \\
+\hline
+
+\text{class} &
+Vehicle category, such as SUV, sedan, or compact car &
+Categorical \\
+\hline
+
+\text{cylinders} &
+Number of cylinders in the vehicle engine &
+Numeric \\
+\hline
+
+\text{displacement} &
+Engine displacement measured in liters &
+Numeric \\
+\hline
+
+\textit{drive} &
+Drivetrain configuration, including FWD, RWD, AWD, and 4WD &
+Categorical \\
+\hline
+
+\text{fuel\_type} &
+Type of fuel used by the vehicle, such as gasoline, diesel, or electric &
+Categorical \\
+\hline
+
+\text{make} &
+Vehicle manufacturer or brand &
+Categorical \\
+\hline
+
+\text{model} &
+Specific vehicle model name &
+Categorical \\
+\hline
+
+\text{transmission} &
+Transmission type, including automatic or manual &
+Categorical \\
+\hline
+
+\text{year} &
+Vehicle model year &
+Numeric \\
+\hline
+
+\end{tabular}
+\caption{Dataset feature summary}
+\label{tab:dataset_features}
+\end{table}
+
+
+\subsection{Class Distribution and Dataset Imbalance}
+
+The distribution of the categorical variables was analyzed to identify potential class imbalance within the dataset. The fuel-type distribution was highly imbalanced, with gasoline-powered vehicles accounting for 546 of the 550 records (99.3\%), while diesel and electric vehicles each accounted for only two records. Therefore, the diesel and electric categories were severely underrepresented~\cite{atique2026explainable}.The drivetrain distribution was also uneven, with all-wheel drive (AWD) representing the dominant category with 215 vehicles, whereas four-wheel drive (4WD) accounted for only 42 vehicles. Similarly, automatic transmission was predominant, with 467 vehicles, compared with 83 vehicles equipped with manual transmission~\cite{atique2026explainable}.Regarding vehicle class, small sport utility vehicles (SUVs) represented the largest category with 157 records, followed by subcompact cars with 85 records and compact cars with 83 records. The midsize station wagon category was severely underrepresented, containing only two records~\cite{atique2026explainable}.These distributions indicate substantial imbalance in several categorical variables, particularly fuel type. Consequently, conclusions involving severely underrepresented categories, such as diesel and electric vehicles, should be interpreted as dataset-specific signals rather than stable population-level findings~\cite{atique2026explainable}.Figure~\ref{fig:dataset_distribution} shows the complete categorical distribution.\cite{atique2026explainable} 
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{chapter3/DD.png}
+    \caption{Distribution of categorical variables in the dataset: (a) fuel type, (b) drivetrain type, (c) transmission type, and (d) vehicle class.}
+    \label{fig:dataset_distribution}
+\end{figure}
+
+
+
+\section{Data Preprocessing}
+
+Following the preprocessing protocol established by Atique et al.~\cite{atique2026explainable}, a series of preprocessing operations were applied to the dataset before model training. These operations included missing-value handling, duplicate removal, outlier detection, categorical encoding, and numerical feature scaling. The preprocessing steps were performed in a structured sequence to improve data quality and ensure that the dataset was suitable for machine learning modeling. Table~\ref{tab:preprocessing_steps} shows preprocessing steps applied in the dataset.\cite{atique2026explainable}
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{|p{3.2cm}|p{6.5cm}|p{4.2cm}|}
+\hline
+\textbf{Step} & \textbf{Description} & \textbf{Result} \\
+\hline
+
+Missing Value Handling &
+Missing values in the \textit{cylinders} and \textit{displacement} variables were identified and imputed using the corresponding column median values. The imputation values were calculated after the train--test split to reduce the risk of information leakage. &
+Less than 0.5\% missing values; median imputation applied \\
+\hline
+
+Duplicate Removal &
+Duplicate records were identified and removed before dataset splitting to prevent identical observations from appearing in both the training and test partitions. &
+2 duplicate records removed \\
+\hline
+
+Outlier Detection &
+The Interquartile Range (IQR) method was applied to identify observations outside the range $[Q_1 - 1.5 \times IQR,\; Q_3 + 1.5 \times IQR]$. &
+10 outlier records removed \\
+\hline
+
+Categorical Encoding &
+Categorical variables, including \textit{drive}, \textit{transmission}, \textit{make}, \textit{fuel\_type}, and \textit{class}, were transformed using one-hot encoding. &
+Categorical variables converted into binary encoded features \\
+\hline
+
+Numerical Scaling &
+Numerical features were standardized using z-score normalization. The scaling parameters were learned from the training data and subsequently applied to the test data. &
+Standardization applied \\
+\hline
+
+\end{tabular}
+\caption{Preprocessing steps applied to the dataset}
+\label{tab:preprocessing_steps}
+\end{table}
+
+
+Following the protocol established by Atique et al.~\cite{atique2026explainable}, duplicate removal and IQR-based outlier detection were treated as data-integrity operations and were performed before the train--test split. These operations did not use target-derived statistics. After splitting the dataset, all fitted preprocessing transformations, including median imputation, one-hot encoding, and numerical standardization, were fitted exclusively on the training partition and subsequently applied to the test partition without re-fitting. This procedure prevented information from the test set from influencing the training process and minimized the risk of data leakage.
+
+
+\section{Feature Engineering}
+
+Consistent with the feature engineering rationale developed by Atique et al.~\cite{atique2026explainable}, a set of domain-informed engineered features was constructed to capture higher-order interactions among vehicle attributes that are not directly observable from the raw specification columns alone. These engineered features were designed to represent the combined effects of engine configuration, vehicle age, drivetrain, vehicle class, and transmission type on fuel efficiency. Table~\ref{tab:engineered_features} summarizes the engineered features and their corresponding automotive-engineering rationales\cite{atique2026explainable}.
+
+\begin{table}[H]
+\centering
+
+\setlength{\arrayrulewidth}{1.5pt}
+\renewcommand{\arraystretch}{1.8}
+
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{|p{6.0cm}|p{4.5cm}|p{8.5cm}|}
+\hline
+
+\textbf{Feature} &
+\textbf{Formula / Definition} &
+\textbf{Rationale} \\
+\hline
+
+\textit{displacement\_year\_interaction} &
+\textit{displacement} $\times$ \textit{year} &
+Captures the evolution of engine downsizing and combustion-efficiency technology over time. A given displacement value may have different fuel-efficiency implications across model years because newer vehicles may benefit from improved combustion control, thermal management, turbocharging, and hybrid assistance. \\
+\hline
+
+\textit{car\_age} &
+$2024 - \textit{year}$ &
+Represents the relative age of the vehicle model. Newer model years may incorporate successive regulatory improvements and technological developments that enhance fuel efficiency. \\
+\hline
+
+\textit{displacement\_per\_cylinder} &
+$\dfrac{\textit{displacement}}{\textit{cylinders}+0.1}$ &
+Approximates the average swept volume per cylinder and provides a relative indicator of engine configuration and combustion characteristics. The constant 0.1 prevents numerical instability in cases involving zero or imputed cylinder values. \\
+\hline
+
+\textit{cylinders\_displacement\_interaction} &
+\textit{cylinders} $\times$ \textit{displacement} &
+Captures the combined effect of cylinder count and engine displacement, representing the total combustion-volume characteristics that influence fuel consumption per engine cycle. \\
+\hline
+
+\textit{is\_luxury} &
+Binary indicator for luxury brands &
+Represents whether a vehicle belongs to a luxury brand category. Luxury vehicles often combine larger and more powerful engines with heavier body structures, which can influence fuel efficiency. \\
+\hline
+
+\textit{is\_suv} &
+Binary indicator for SUV body class &
+Represents whether the vehicle belongs to the SUV category. The larger and taller body profile of SUVs generally increases aerodynamic drag and may increase fuel demand. \\
+\hline
+
+\textit{is\_4wd} &
+Binary indicator for AWD or 4WD &
+Represents whether power is delivered to all four wheels. Additional drivetrain components may introduce mechanical friction and energy losses, potentially reducing fuel efficiency. \\
+\hline
+
+\textit{is\_automatic} &
+Binary indicator for automatic transmission &
+Represents whether the vehicle uses an automatic transmission. Automatic and manual transmissions exhibit different fuel-consumption characteristics due to differences in gear selection and power transmission. \\
+\hline
+
+\end{tabular}%
+}
+\caption{Engineered features and their rationale}
+\label{tab:engineered_features}
+\end{table} 
+
+
+\subsection{Feature Exclusion}
+
+To prevent data leakage and control the dimensionality of the feature space, several variables were excluded from the model input feature set. The target variable, \textit{combination\_mpg}, was excluded because it represents the value to be predicted. In addition, \textit{city\_mpg} and \textit{highway\_mpg} were excluded because they are direct components of the combined fuel-efficiency target and could artificially inflate model performance through target leakage.The \textit{model} variable was also excluded because it contained 276 unique vehicle model names, resulting in high cardinality. Retaining this variable could increase the risk of overfitting, particularly given the relatively small sample size of the dataset. Therefore, the \textit{model} feature was removed before model training to improve generalization and reduce unnecessary dimensionality~\cite{atique2026explainable}.
+
+\subsection{Final Feature Count}
+
+After feature engineering and feature exclusion, the final model input consisted of 16 features before one-hot encoding. These features included the retained numerical and categorical vehicle attributes together with the engineered domain-informed variables. Following one-hot encoding of the categorical variables, the final feature matrix contained 63 encoded columns, which were used as input to the machine learning models.The exclusion of the target variable and its direct component metrics prevented target leakage, while the removal of the high-cardinality \textit{model} feature reduced the risk of overfitting. The resulting feature representation therefore provided a balance between preserving relevant automotive information and maintaining a manageable model complexity~\cite{atique2026explainable}.
+
+
+\section{Dataset Splitting Strategy}
+
+Because the target variable (\textit{combination\_mpg}) is continuous, direct stratified sampling is not applicable. Following \cite{atique2026explainable}, the target variable was discretized into \textbf{five equal-frequency quantile-based strata}. The \texttt{train\_test\_split} function was then applied using these strata as the stratification variable, ensuring that vehicles across the full fuel-efficiency spectrum were proportionally represented in both the training and test sets. An \textbf{80:20} train--test split ratio was adopted, with a fixed random seed (\texttt{random\_state = 42}) to ensure reproducibility. Table~\ref{tab:dataset_split} shows Train--test split by target stratum.\cite{atique2026explainable}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|c|c|c|c|}
+\hline
+\textbf{Stratum} & \textbf{MPG Range} & \textbf{Total} & \textbf{Training} & \textbf{Test} \\
+\hline
+Very Low  & 14--19 & 125 & 100 & 25 \\
+\hline
+Low       & 19--22 & 127 & 101 & 26 \\
+\hline
+Medium    & 22--24 & 77  & 62  & 15 \\
+\hline
+High      & 24--28 & 120 & 96  & 24 \\
+\hline
+Very High & 28--37 & 89  & 71  & 18 \\
+\hline
+\textbf{Total} & -- & \textbf{538} & \textbf{430} & \textbf{108} \\
+\hline
+\end{tabular}
+\caption{Train--test split by target stratum}
+\label{tab:dataset_split}
+\end{table}
+
+
+\subsection{Model Selection and Training}
+
+Following the breadth of the benchmark established in~\cite{atique2026explainable}, this study evaluates machine learning models drawn from four major algorithmic families. The selected candidate models are summarized in Table~\ref{tab:model_families}\cite{atique2026explainable}.
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|p{4cm}|p{10cm}|}
+\hline
+\textbf{Family} & \textbf{Models} \\ \hline
+
+Linear &
+Linear Regression, Ridge Regression, Lasso Regression \\ \hline
+
+Tree-based Ensemble &
+Decision Tree, Random Forest, Gradient Boosting, Extra Trees, AdaBoost, XGBoost, LightGBM, CatBoost \\ \hline
+
+Instance-based &
+K-Nearest Neighbors (KNN), Support Vector Regression (SVR) \\ \hline
+
+Neural &
+Multilayer Perceptron (MLP) \\ \hline
+
+Advanced Ensembles &
+Stacking Ensemble (Random Forest + XGBoost + CatBoost + Gradient Boosting with Ridge meta-learner), Bayesian-tuned XGBoost (Optuna), Tuned Feedforward Neural Network \\ \hline
+
+\end{tabular}
+\caption{Candidate machine learning models by algorithmic family.}
+\label{tab:model_families}
+\end{table}
+
+Ensemble tree-based algorithms were prioritized because previous studies consistently demonstrated their superior performance on structured tabular datasets containing both numerical and categorical vehicle attributes~\cite{atique2026explainable}\cite{grinsztajn2022tree}\cite{malashin2025boosting}. These methods effectively capture complex non-linear relationships while maintaining strong predictive performance and robustness.
+Among them, CatBoost was included because its ordered boosting strategy is specifically designed for categorical-heavy datasets, allowing it to extract informative patterns from variables such as vehicle class, manufacturer, drivetrain, and transmission type with minimal prediction bias~\cite{atique2026explainable}. Likewise, Extra Trees was selected because its randomized split strategy reduces overfitting and improves generalization on high-dimensional structured data, whereas Random Forest and Gradient Boosting provide strong ensemble baselines through bagging and boosting strategies, respectively.Linear Regression, Ridge Regression, and Lasso Regression were employed as interpretable baseline models to evaluate the effect of regularization on predictive performance. Ridge Regression mitigates multicollinearity through L2 regularization, whereas Lasso Regression performs embedded feature selection via L1 regularization.The instance-based learning family was represented by K-Nearest Neighbors (KNN) and Support Vector Regression (SVR). KNN predicts target values based on local neighborhood similarity, while SVR models complex non-linear relationships through kernel-based optimization.To investigate the capability of neural architectures, a Multilayer Perceptron (MLP) was also evaluated. Furthermore, three advanced modeling strategies were explored to examine the upper performance limit of the dataset: a tuned feedforward neural network, Bayesian hyperparameter optimization of XGBoost using Optuna, and a stacking ensemble integrating Random Forest, XGBoost, CatBoost, and Gradient Boosting as base learners with Ridge Regression as the meta-learner.
+
+
+\section{Hyperparameter Tuning Strategy}
+
+To obtain optimal predictive performance, all models with tunable hyperparameters were optimized using a combination of \textit{GridSearchCV} and \textit{RandomizedSearchCV} with an inner five-fold cross-validation strategy and negative root mean squared error (RMSE) as the scoring metric, following the methodology adopted in~\cite{atique2026explainable}. Ordinary Least Squares (OLS) Linear Regression was excluded from hyperparameter optimization because it has no tunable hyperparameters under the closed-form solution. Likewise, the default Multilayer Perceptron (MLP) configuration was used as a baseline, while a separately optimized neural network architecture is presented in the Advanced Modeling Techniques section.The hyperparameter search space considered for each model is summarized in Table~\ref{tab:hyperparameter_space}\cite{atique2026explainable}. The optimal configurations identified during the tuning process are presented later in Chapter~4 together with the corresponding performance results.
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|p{4cm}|p{10.5cm}|}
+\hline
+\textbf{Model} & \textbf{Key Tuned Hyperparameters} \\ \hline
+
+CatBoost &
+learning\_rate, l2\_leaf\_reg, iterations, depth \\ \hline
+
+Random Forest &
+n\_estimators, max\_depth, min\_samples\_split, min\_samples\_leaf, max\_features \\ \hline
+
+Gradient Boosting &
+n\_estimators, max\_depth, min\_samples\_split, min\_samples\_leaf, learning\_rate \\ \hline
+
+XGBoost &
+subsample, n\_estimators, max\_depth, learning\_rate, colsample\_bytree \\ \hline
+
+LightGBM &
+subsample\_freq, subsample, num\_leaves, n\_estimators, max\_depth, learning\_rate \\ \hline
+
+Ridge Regression &
+alpha, solver \\ \hline
+
+Extra Trees &
+max\_depth, max\_features, min\_samples\_leaf, n\_estimators \\ \hline
+
+K-Nearest Neighbors &
+n\_neighbors, weights, metric \\ \hline
+
+Support Vector Regression &
+C, epsilon, kernel \\ \hline
+
+Decision Tree &
+max\_depth, min\_samples\_split, min\_samples\_leaf, max\_features \\ \hline
+
+AdaBoost &
+n\_estimators, learning\_rate, loss \\ \hline
+
+Lasso Regression &
+alpha, max\_iter, selection \\ \hline
+
+\end{tabular}
+\caption{Summary of hyperparameter search space for the evaluated machine learning models.}
+\label{tab:hyperparameter_space}
+\end{table}
+
+The optimal hyperparameter values obtained for each tuned model are reported in Chapter~4 (Table~4.3), together with their corresponding predictive performance metrics.
+
+
+\section{Evaluation Metrics}
+
+Model performance was evaluated using three complementary regression metrics: the coefficient of determination ($R^2$), root mean squared error (RMSE), and mean absolute error (MAE), following the evaluation methodology adopted in~\cite{atique2026explainable}. The $R^2$ score measures the proportion of variance in the target variable explained by the model, whereas RMSE and MAE quantify the prediction error, with RMSE placing greater emphasis on larger deviations. In addition, training time was recorded as an indicator of computational efficiency, which is particularly relevant for real-time or resource-constrained deployment scenarios.The mathematical definitions of the evaluation metrics are given as follows:
+\begin{equation}
+R^2 = 1 - \frac{\sum (y_i-\hat{y}_i)^2}
+{\sum (y_i-\bar{y})^2},
+\qquad
+RMSE = \sqrt{\frac{1}{n}\sum (y_i-\hat{y}_i)^2},
+\qquad
+MAE = \frac{1}{n}\sum |y_i-\hat{y}_i|
+\end{equation}
+where $y_i$ denotes the true MPG value, $\hat{y}_i$ represents the predicted MPG value, $\bar{y}$ is the mean of the observed target values, and $n$ is the total number of test samples. Higher values of $R^2$ indicate better predictive performance, whereas lower RMSE and MAE values indicate smaller prediction errors and improved model accuracy.
+
+
+
+
+\section{Advanced Modeling Techniques}
+
+Following the methodology proposed in~\cite{atique2026explainable}, three advanced modeling techniques were evaluated to further investigate the predictive performance limits of the dataset beyond the standard machine learning benchmark.
+
+\begin{itemize}
+
+\item \textbf{Tuned Neural Network (MLP/Keras).}
+A tuned feedforward neural network consisting of three hidden layers with 128, 64, and 32 neurons, ReLU activation functions, and a maximum of 1000 training iterations was developed to examine whether a neural architecture could outperform tree-based ensemble models on the relatively small tabular dataset.
+
+\item \textbf{Stacking Ensemble.}
+A stacking ensemble was constructed by combining Random Forest, XGBoost, CatBoost, and Gradient Boosting as base learners, while Ridge Regression was employed as the meta-learner. Five-fold cross-validation was used to generate out-of-fold predictions for training the meta-model and reducing overfitting.
+
+\item \textbf{Bayesian-Optimized XGBoost.}
+Bayesian hyperparameter optimization was performed using Optuna over 30 optimization trials. The search space included \textit{n\_estimators}, \textit{max\_depth}, \textit{learning\_rate}, \textit{subsample}, \textit{colsample\_bytree}, \textit{reg\_alpha}, and \textit{reg\_lambda}, with the objective of maximizing the cross-validated $R^2$ score.
+
+\end{itemize}
+
+
+
+\section{CO$_2$ Emission Estimation}
+
+Consistent with standard carbon-accounting practice and the methodology adopted in~\cite{atique2026explainable}, CO$_2$ emissions were not predicted using a separate machine learning model. Instead, they were deterministically estimated from the predicted combined fuel efficiency. First, the predicted combined fuel efficiency was converted from miles per gallon (MPG) to liters per 100 kilometers (L/100 km) using:
+
+\begin{equation}
+\text{L/100 km}=\frac{235.215}{\text{MPG}}
+\label{eq:l100km}
+\end{equation}
+
+The estimated CO$_2$ emissions were then calculated using fuel-type-specific emission factors:
+
+\begin{equation}
+\mathrm{CO}_2(\mathrm{g/km})=
+\begin{cases}
+\text{fuel\_comb\_L100}\times23.1, & \text{if fuel type = gasoline},\\
+\text{fuel\_comb\_L100}\times26.4, & \text{if fuel type = diesel},\\
+0, & \text{if fuel type = electric}.
+\end{cases}
+\label{eq:co2}
+\end{equation}
+
+where \textit{fuel\_comb\_L100} denotes the predicted fuel consumption expressed in liters per 100 kilometers. The emission factors of 23.1 gCO$_2$/km per (L/100 km) for gasoline and 26.4 gCO$_2$/km per (L/100 km) for diesel were adopted following~\cite{atique2026explainable}. Electric vehicles were assigned 0 g/km for direct tailpipe CO$_2$ emissions only. Upstream electricity-generation emissions, fuel production, battery manufacturing, and full lifecycle emissions were considered beyond the scope of this thesis.
+
+
+
+\section{Explainability Framework}
+
+In this study, we integrated three XAI methods---SHAP, LIME, and permutation importance---following the approach outlined in~\cite{atique2026explainable}, thus addressing recent recommendations for multi-method interpretability validation~\cite{ghadi2025explainable}\cite{yoo2025machine}. These methods were selected to understand how the input variables affected fuel consumption (\textit{combination\_mpg}), which is directly associated with CO$_2$ emissions estimation.
+
+\subsection{SHAP Analysis}
+
+Based on cooperative game theory, SHAP decomposes each model prediction into additive contributions from individual features~\cite{lundberg2017unified}. SHAP values are computed using the tree-specific TreeExplainer, which provides exact SHAP values for tree-based models in polynomial time. Both beeswarm summary plots and bar-chart aggregations of the mean absolute SHAP values are produced to illustrate the global feature importance and the directionality of each feature's influence.SHAP treats each input attribute as a participant in a coalition game whose collective reward is the model prediction. The contribution attributed to the $i$-th predictor is determined by averaging its marginal effect across every admissible ordering of the full feature set $F$. For model $f$ operating over $p$ input variables, the SHAP value $\phi_i$ for feature $i$ is defined as
+
+\begin{equation}
+\phi_i(f)=
+\sum_{S\subseteq F\setminus\{i\}}
+\frac{|S|!\left(|F|-|S|-1\right)!}{|F|!}
+\left[
+v(S\cup\{i\})-v(S)
+\right]
+\label{eq:shap}
+\end{equation}
+
+where $S$ denotes any subset of features excluding predictor $i$, $|F|$ is the total number of input variables, and $v(\cdot)$ is the characteristic value function.Because SHAP satisfies the properties of efficiency, symmetry, dummy, and linearity, every prediction can be reconstructed as
+
+\begin{equation}
+\hat{y}
+=
+\phi_0
++
+\sum_{i=1}^{p}
+\phi_i
+\label{eq:prediction}
+\end{equation}
+
+where
+
+\begin{equation}
+\phi_0
+=
+\mathbb{E}[f(x)].
+\label{eq:baseline}
+\end{equation}
+
+The TreeExplainer algorithm was applied to the best-performing tree-based model because it exploits the recursive structure of decision trees to compute exact SHAP values efficiently. Global feature importance was summarized as the mean absolute SHAP value across all held-out test samples:
+
+\begin{equation}
+\bar{\phi}_i
+=
+\frac{1}{n_{\mathrm{test}}}
+\sum_{k=1}^{n_{\mathrm{test}}}
+\left|
+\phi_i^{(k)}
+\right|
+\label{eq:mean_shap}
+\end{equation}
+
+where $\phi_i^{(k)}$ represents the SHAP value of feature $i$ for the $k$-th test instance. Beeswarm plots were generated to visualize both the magnitude and direction of each feature's influence.
+
+
+
+\subsection{Permutation Importance}
+
+Although SHAP provides theoretically grounded feature attributions, its dependence on the internal structure of tree-based learners may absorb certain correlation structures among predictors. Therefore, permutation importance was used as a model-agnostic complementary technique.Permutation importance quantifies the degradation in prediction performance caused by randomly shuffling a feature while keeping all remaining variables unchanged. The importance score for feature $j$ is computed as
+
+\begin{equation}
+PI_j
+=
+\frac{1}{K}
+\sum_{k=1}^{K}
+\left[
+L\!\left(
+y,
+f(X_j^{e(k)})
+\right)
+-
+L\!\left(
+y,
+f(X)
+\right)
+\right]
+\label{eq:pi}
+\end{equation}
+
+where
+
+\begin{itemize}
+\item $L(\cdot)$ denotes the loss function (RMSE in this study),
+\item $X$ is the original test dataset,
+\item $X_j^{e(k)}$ is the test dataset after the $k$-th random permutation of feature $j$,
+\item $K$ is the number of permutation repetitions.
+\end{itemize}
+
+A larger positive value of $PI_j$ indicates greater importance because model performance deteriorates substantially after permuting that feature. In this study, $K=30$ repetitions were used, and both the mean and standard deviation of the permutation importance scores were reported.
+
+
+
+\subsection{LIME Analysis}
+
+LIME generates locally faithful linear surrogate models around individual predictions by perturbing the neighborhood of a selected test instance. This local explanation complements the global interpretation provided by SHAP and permutation importance.
+
+Let
+
+\[
+f:\mathbb{R}^{p}\rightarrow\mathbb{R}
+\]
+
+be the trained prediction model and let
+
+\[
+x\in\mathbb{R}^{p}
+\]
+
+be a particular test sample.
+
+LIME constructs the following optimization problem:
+
+\begin{equation}
+\xi(x)
+=
+\arg\min_{g\in G}
+L(f,g,\pi_x)
++
+\Omega(g)
+\label{eq:lime}
+\end{equation}
+
+where
+
+\begin{itemize}
+\item $G$ is the family of sparse linear surrogate models,
+\item $L(f,g,\pi_x)$ measures the local fidelity of surrogate model $g$ to the original model $f$,
+\item $\pi_x$ is the locality weighting kernel,
+\item $\Omega(g)$ is the model complexity penalty.
+\end{itemize}
+
+Following previous studies, LIME explanations were generated for two representative instances:
+
+\begin{enumerate}
+\item the vehicle with the lowest predicted combined MPG, representing the most fuel-inefficient case, and
+\item the vehicle whose predicted value was closest to the median prediction, representing a typical case.
+\end{enumerate}
+
+
+\subsection{Cross-Method Consistency Analysis}
+
+To validate the robustness of the explainability results, pairwise Spearman rank correlation coefficients were calculated among the global feature rankings produced by SHAP, permutation importance, and LIME. Spearman rank correlation coefficient is defined as
+
+\begin{equation}
+\rho
+=
+1-
+\frac{
+6\sum_{i=1}^{n}d_i^2
+}
+{
+n(n^2-1)
+}
+\label{eq:spearman}
+\end{equation}
+
+where
+
+\begin{itemize}
+\item $\rho$ denotes the Spearman rank correlation coefficient,
+\item $d_i$ is the difference between the ranks assigned by two explainability methods,
+\item $n$ is the total number of compared features.
+\end{itemize}
+
+A higher value of $\rho$ indicates stronger agreement between explainability methods, while lower values suggest differences in the feature importance rankings.
+
+\section{Experimental Environment and Reproducibility}
+
+All experiments were implemented in Python 3.12 using Google Colab. Data preprocessing and model development were performed using the \texttt{pandas}, \texttt{NumPy}, and \texttt{scikit-learn} libraries. The ensemble learning models were implemented using the \texttt{XGBoost}, \texttt{LightGBM}, and \texttt{CatBoost} libraries, while model explainability was conducted using the \texttt{SHAP} and \texttt{LIME} frameworks. Hyperparameter optimization was carried out using the \texttt{Optuna} library. Data visualization was generated using \texttt{Matplotlib} and \texttt{Seaborn}. The experiments were executed in the Google Colab environment using an Intel Xeon CPU, NVIDIA Tesla T4 GPU, and approximately 15 GB RAM. A fixed random seed (\texttt{random\_state = 42}) was used throughout all experiments to ensure reproducibility of data splitting, model initialization, and cross-validation folds. The versions of the software libraries and the experimental settings were recorded to facilitate reproducibility of the reported results.
+The versions of the software libraries and the experimental settings were recorded to facilitate reproducibility of the reported results~\cite{atique2026explainable}.
+
+
+\section{Chapter Summary}
+
+This chapter presented the complete methodology adopted in this study, including the dataset description, data preprocessing pipeline, feature engineering process, model selection and benchmarking, hyperparameter optimization, evaluation metrics, explainability framework, and experimental environment. The proposed methodology was informed by and adapted from the two-stage machine learning framework of Atique et al.~\cite{atique2026explainable}, with modifications to suit the objectives and characteristics of the selected dataset. The next chapter presents the experimental results, performance comparison of the developed models, explainability analysis, and a comprehensive discussion of the findings.

@@ -1,0 +1,155 @@
+\section{Interpretation of Predictive Performance}
+
+The best-performing model in this study, CatBoost, achieved a test $R^2$ of 0.9260, which matches the $R^2$ reported for the tuned CatBoost model in Atique et al.~\cite{atique2026explainable} and represents the highest predictive accuracy among all 17 evaluated algorithms. This result is broadly consistent with the wider literature reviewed in Chapter~2, which repeatedly identifies tree-based ensemble methods --- and CatBoost in particular --- as well suited to structured, categorical-heavy tabular datasets such as vehicle specification data~\cite{atique2026explainable}\cite{grinsztajn2022tree}. The performance surpasses comparable studies on similar vehicle datasets, including Farooq et al.~\cite{farooq2025interpretable} ($R^2 = 0.9168$) and Alhakamy et al.~\cite{alhakamy2023used} (RMSE = 1.430), while demonstrating competitive alignment with Ghadi et al.~\cite{ghadi2025explainable} ($R^2 = 0.962$) and Yoo et al.~\cite{yoo2025machine} ($R^2 = 0.998$), the latter of which employed a larger Korean dataset.The magnitude of the residual error (\textbf{1.1759 MPG RMSE}) should be interpreted in the context of the target variable's overall range and standard deviation with standard deviation approximately 4.946 MPG). The RMSE represents approximately \textbf{23.8\% of the standard deviation} and \textbf{4.3\% of the target range} (14--37 MPG), indicating that the model's predictions fall within acceptable tolerances for regulatory screening and vehicle design applications. The MAE of \textbf{0.8147 MPG} further confirms that typical predictions deviate by less than one mile per gallon from observed values, which is practically acceptable for the intended use cases discussed including fleet-level emissions benchmarking, manufacturer design optimization, and consumer purchasing guidance. The residual distribution shown validates that errors are unbiased and centered at zero, with no systematic over- or under-prediction across the efficiency spectrum. Table~\ref{tab:comparison}\cite{atique2026explainable} shows Key performance comparison with related studies.
+
+\begin{table}[H]
+\centering
+\setlength{\arrayrulewidth}{1.8pt}
+\renewcommand{\arraystretch}{1.2}
+
+\begin{tabular}{|l|c|c|c|c|}
+\hline
+\textbf{Metric} &
+\textbf{This Study} &
+\textbf{Farooq et al.}\cite{farooq2025interpretable} &
+\textbf{Ghadi et al.}\cite{ghadi2025explainable} &
+\textbf{Yoo et al.}\cite{yoo2025machine} \\
+\hline
+$R^2$ & 0.9260 & 0.9168 & 0.962 & 0.998 \\
+\hline
+RMSE & 1.1759 & --- & --- & --- \\
+\hline
+MAE & 0.8147 & --- & --- & --- \\
+\hline
+\end{tabular}
+
+\caption{Key performance comparison with related studies}
+\label{tab:comparison}
+\end{table}
+
+The near-perfect training-test generalization gap ($0.9723$ vs. $0.9236$, gap = $0.0487$) confirms that CatBoost avoids overfitting, distinguishing it from ExtraTrees and Decision Tree, which exhibited problematic generalization gaps exceeding $0.190$. The 5-fold cross-validated $R^2$ of $0.8641 \pm 0.0324$ further validates the stability of these findings across random data partitions.
+
+
+\section{Interpretation of Feature Engineering Contribution}
+
+The ablation study presented in Section~4.5 demonstrates that domain-informed feature engineering provided selective but meaningful improvements across the evaluated models. Under default hyperparameter settings, feature engineering enhanced performance for 6 out of 14 models, with the most substantial gains observed for Lasso \((\Delta R^2 = +0.0155)\), Ridge \((\Delta R^2 = +0.0066)\), and CatBoost \((\Delta R^2 = +0.0064)\), followed by ExtraTrees, linear regression, and Random Forest with marginal improvements. Under tuned hyperparameter settings, this pattern persisted, with Lasso \((\Delta R^2 = +0.0181)\), CatBoost \((\Delta R^2 = +0.0106)\), and ExtraTrees \((\Delta R^2 = +0.0096)\) showing the most consistent gains. This is broadly consistent with the pattern reported by Atique et al.~\cite{atique2026explainable}, who found that engineered interaction features (particularly the displacement--year interaction) benefited linear and regularized models most consistently, while offering more marginal or even slightly negative gains for tree-based ensembles capable of implicitly learning similar interactions through recursive splitting. Our results partially replicate this pattern, with the notable exception of CatBoost, which consistently benefited from feature engineering despite being a tree-based model---likely due to its ordered boosting mechanism that systematically processes categorical features and can exploit explicit interaction terms as direct splitting candidates rather than relying solely on recursive partitioning to discover them. Conversely, XGBoost, LightGBM, and Gradient Boosting exhibited marginal negative deltas under both default and tuned conditions (ranging from \(-0.0025\) to \(-0.0132\)), confirming that these algorithms' native capacity to construct higher-order interactions through sequential tree growth can render explicit domain features partially redundant or even mildly disruptive when hyperparameters are optimized to maximally exploit raw feature interactions. The consistent positive gains for linear and regularized models across both experimental conditions empirically validate the domain-informed feature engineering pipeline, while the selective benefits for certain tree-based ensembles underscore that the marginal utility of explicit feature construction depends critically on the inductive biases and internal interaction-capturing mechanisms of the underlying algorithm.
+
+
+\section{Interpretation of XAI Findings}
+
+Across the SHAP, LIME, and permutation importance analyses presented in Sections~4.7--4.9, \textit{cylinders}, \textit{drive\_fwd}, and \textit{displacement\_year\_interaction} emerged as the most consistently influential predictors of fuel efficiency. This finding aligns closely with the top features identified by Atique et al.~\cite{atique2026explainable}, who found cylinder count, front-wheel drive, and the displacement--year interaction to be the primary drivers of combined MPG predictions. The convergence is particularly striking given that \cite{atique2026explainable} employed the same CatBoost model and identical XAI methods on a related but distinct vehicle dataset, suggesting that these three predictors represent structurally stable determinants of fuel economy rather than dataset-specific artifacts. This consistency also corroborates the findings of Ghadi et al.~\cite{ghadi2025explainable}, who identified displacement and cylinder count as dominant predictors of smog rating, and Alam et al.~\cite{alam2025deep}, who identified fuel consumption, engine size, and vehicle class as dominant CO\textsubscript{2} predictors, though the present study extends these observations by explicitly quantifying the contribution of the displacement--year interaction as a proxy for technological evolution in engine downsizing and turbocharging.The cross-method consistency analysis in Section~4.8 found a Spearman rank correlation of \(\rho = 0.857\) between SHAP and permutation importance, compared to \(\rho = 0.407\) between SHAP and LIME. These values mirror the values reported in [1] (\(\rho = 0.857\) and \(\rho = 0.407\), respectively) and are therefore directly comparable. The near-identical correlation coefficients across the two studies provide independent corroboration --- on a distinct dataset --- of the methodological observation in [1] that global (SHAP, permutation importance) and local (LIME) explanation methods capture genuinely different, complementary aspects of model behavior rather than contradictory ones. The strong SHAP--permutation agreement (\(\rho = 0.857\)) confirms that the global feature importance narrative is methodologically robust, while the weaker LIME alignment (\(\rho = 0.407\)) reflects LIME's fundamentally local scope: it constructs sparse linear surrogates in perturbed neighborhoods around individual instances, which naturally diverge from global importance rankings, particularly when a small number of high-leverage records exert disproportionate influence on local coefficients without materially affecting global attributions. This pattern, replicated consistently across both studies, affirms that strong agreement between two global methods is sufficient to validate the global feature-importance narrative even when LIME alignment is comparatively weaker, and that the divergence is not evidence of inconsistency but rather of complementary explanatory perspectives.
+
+
+\section{Comparison with Atique et al and Other Prior Work}
+
+Table~5.1 situates the present thesis's findings directly against the comparative summary developed in Chapter~2 (Table~2.1), with a focus on Atique et al.~\cite{atique2026explainable} as the primary methodological reference.
+
+Table~\ref{tab:comparative_summary}\cite{atique2026explainable} shows Comparative summary against prior literature.
+
+\begin{table}[H]
+\centering
+\setlength{\arrayrulewidth}{2pt} % Thick borders
+\renewcommand{\arraystretch}{1.2}
+
+\resizebox{\textwidth}{!}{
+\begin{tabular}{|p{3.5cm}|p{2.5cm}|p{2.5cm}|p{1.8cm}|p{2.8cm}|p{4.5cm}|}
+\hline
+\textbf{Study} &
+\textbf{Dataset Size} &
+\textbf{Best Model} &
+\textbf{Best \(R^2\)} &
+\textbf{\# XAI Methods} &
+\textbf{Top Feature(s) Identified} \\
+\hline
+
+Atique et al.~\cite{atique2026explainable} &
+550 (US, 2014--2024) &
+CatBoost &
+0.9260 &
+3 (SHAP, LIME, PI) &
+Cylinders, drive\_fwd, displacement--year interaction \\
+\hline
+
+Ghadi et al.~\cite{ghadi2025explainable} &
+639 (Canadian) &
+RF &
+0.962 &
+3 &
+Displacement, cylinder count \\
+\hline
+
+Yoo et al.~\cite{yoo2025machine} &
+953 (Korean) &
+XGBoost &
+0.998 &
+2 (SHAP, LIME) &
+Fuel consumption, engine size \\
+\hline
+
+Alam et al.~\cite{alam2025deep} &
+Canadian &
+CarbonMLP &
+0.9938 &
+1 (SHAP) &
+Fuel consumption, engine size, vehicle class \\
+\hline
+
+Present Thesis &
+538 (US, 2014--2024) &
+CatBoost &
+0.9260 &
+3 (SHAP, LIME, PI) &
+Cylinders, drive\_fwd, displacement--year interaction \\
+\hline
+
+\end{tabular}
+}
+\caption{Comparative summary against prior literature.}
+\label{tab:comparative_summary}
+\end{table}
+
+The present thesis replicates the general finding that engine size- and cylinder-related variables dominate fuel efficiency prediction across independently collected datasets and independent modeling pipelines. The top three features identified --- \textit{cylinders}, \textit{drive\_fwd}, and \textit{displacement\_year\_interaction} --- are identical to those reported by Atique et al.~[1], despite the present study employing an independent implementation pipeline and operating on a dataset that, while originating from the same Kaggle source, underwent distinct preprocessing, outlier removal, and feature engineering procedures (including the exclusion of two additional outliers and the application of a consistent random seed for reproducibility). This cross-study convergence substantially strengthens the external validity of the mechanistic conclusion that engine displacement and cylinder count are primary, largely model-agnostic determinants of fuel efficiency, and that front-wheel drive represents a structurally favorable drivetrain configuration for fuel economy.The alignment with Ghadi et al.~\cite{ghadi2025explainable} further reinforces this interpretation: although their study addressed smog rating rather than fuel efficiency directly, the dominance of displacement and cylinder count as top-ranked predictors confirms that these engine architecture variables exert a foundational influence on multiple correlated vehicle emission and efficiency metrics. Similarly, the findings of Alam et al.~[49] --- who identified fuel consumption, engine size, and vehicle class as dominant CO\textsubscript{2} predictors --- are broadly consistent with the present study's conclusion that engine architecture (displacement, cylinders) and vehicle-level structural attributes (drive type, class) constitute the primary drivers of energy intensity and tailpipe emissions.Several divergences are worth noting. Yoo et al.~\cite{yoo2025machine} achieved a substantially higher \(R^2 = 0.998\) on their Korean-market dataset, which likely reflects the more homogeneous vehicle composition within a single national market and the inclusion of detailed fuel consumption metrics as direct predictors rather than as derived targets. The present study's \(R^2 = 0.9260\), while lower, was obtained on a more heterogeneous US-market dataset spanning 11 model years and multiple vehicle classes, and deliberately excluded city and highway MPG as direct predictors to avoid target leakage and evaluate genuine specification-based predictive capacity. The absence of vehicle class from the present study's top three features (compared with Alam et al.~[49]) may be attributed to the engineered \textit{is\_suv} and \textit{is\_luxury} binary indicators partially absorbing class-level variance, as well as the near-complete dominance of gasoline vehicles in the dataset, which limited the predictive signal available from fuel-type stratification.Overall, the cross-study convergence on engine architecture and drivetrain configuration as dominant predictors, despite differences in dataset composition, national market, model architecture, and XAI methodology, provides compelling evidence that these variables represent structurally stable, mechanistically grounded determinants of vehicle fuel efficiency. This consistency affirms the generalizability of the present study's mechanistic conclusions and supports the use of these feature relationships as a foundation for evidence-based emission regulation and sustainable transportation policy.
+
+
+\section{Practical Implications for Stakeholders}
+
+Following the stakeholder-oriented discussion structure of Atique et al.~\cite{atique2026explainable}, Section~5, the findings of this thesis carry distinct implications for three groups:
+
+\paragraph{For automotive manufacturers:}
+The consistent dominance of cylinder count and displacement as negative predictors of fuel efficiency, combined with the positive contribution of front-wheel drive (drive\_fwd), supports continued investment in engine downsizing, turbocharging, and front-wheel-drive platforms for fuel-economy-focused vehicle segments. The displacement--year interaction feature, which emerged as the third most influential predictor across all three XAI methods, statistically detects the industry-wide trend toward smaller, more efficient turbocharged engines over time: high values of this interaction (larger displacement in recent model years) shift predictions downward, while low values (smaller displacement in recent years) shift predictions upward. This confirms that the CatBoost model has learned the real-world engineering trend that modern powertrains deliver improved fuel efficiency for a given displacement class compared with older models, likely due to advances in combustion control, thermal management, friction reduction, and hybridization. Manufacturers can leverage this insight to prioritize R\&D investment in technologies that maximize efficiency gains from downsized, turbocharged architectures, particularly when paired with front-wheel-drive configurations that minimize drivetrain losses and mechanical complexity.
+
+\paragraph{For environmental regulators and policymakers:}
+The explainability-confirmed feature relationships---rather than simplified average emission factors---could inform more granular, specification-based CO\textsubscript{2} emission benchmarks. The SHAP and permutation importance analyses quantify the marginal contribution of each vehicle attribute to fuel consumption (and thus CO\textsubscript{2} output), enabling regulators to establish displacement- and cylinder-count-dependent emission thresholds that reflect actual engineering relationships rather than uniform fleet averages. For example, the permutation importance analysis showed that random shuffling of cylinder count degraded model \(R^2\) by 0.297, confirming that cylinder count is the single most influential determinant of fuel efficiency and should carry corresponding weight in regulatory frameworks. Furthermore, instance-level LIME explanations could support regulatory audit and accountability by providing rule-based transparency for individual vehicle certifications: regulators could interrogate why a specific vehicle received a particular fuel-efficiency rating, identifying whether deviations from expected performance are attributable to legitimate engineering trade-offs (e.g., larger engine for towing capacity) or potential testing anomalies. This aligns with the broader movement toward transparent, explainable AI in high-stakes environmental decision-making.
+
+\paragraph{For consumers:}
+The XAI transparency directly supports purchasing decisions by revealing which specific vehicle-specification attributes drive predicted (in)efficiency for a given configuration. The LIME local explanations (Figure~22) demonstrate that a low cylinder count was the single strongest driver of elevated fuel efficiency for the examined test instance, while the absence of front-wheel drive imposed the primary structural downward penalty. Consumers can therefore make more informed trade-offs between vehicle class, drivetrain, and engine configuration at the point of purchase: for example, opting for a four-cylinder front-wheel-drive vehicle over a six-cylinder all-wheel-drive counterpart yields measurable fuel economy improvements that are directly traceable to specific attribute choices rather than opaque manufacturer claims. The SHAP waterfall plot further illustrates how individual vehicle features combine to move a prediction above or below the population average, empowering consumers to understand the cumulative effect of their configuration choices and prioritize features that align with their efficiency preferences and environmental values.
+
+
+
+\section{Threats to Validity and Limitations}
+
+Several limitations, consistent with those acknowledged by Atique et al.~\cite{atique2026explainable} for their own dataset, apply to this thesis:
+
+\paragraph{Static, specification-only data.}
+As discussed in Section~1.5, the dataset used in this thesis reflects vehicle specifications rather than real-world driving behavior, OBD-II sensor streams, or dynamic ECU telemetry. Model predictions should therefore be interpreted as specification-based fuel-efficiency estimates, not real-world dynamic fuel-consumption predictions. The absence of second-by-second GPS data, traffic conditions, road gradient, and driver behavior means that the models capture static engineering relationships rather than situational consumption variability. This limitation is inherent to the dataset source and does not undermine the validity of the specification-based predictive framework, but it precludes direct application to real-time eco-driving or route-optimization systems without retraining on dynamic telemetry data.
+
+\paragraph{Dataset composition and class imbalance.}
+As detailed in Section~3.1, the dataset is severely imbalanced with respect to fuel type: 546 gasoline-powered vehicles dominate the 550-record corpus, with only two diesel vehicles and two electric vehicles present. Consequently, conclusions involving diesel or electric fuel indicators should be treated as dataset-specific signals rather than stable population-level findings, following the explicit caveat adopted in Atique et al.~[1] for their own diesel/electric subsample. This imbalance limits the generalizability of fuel-type-specific CO\textsubscript{2} estimation (Equation~8) and prevents robust comparative analysis across powertrain types. Future research should deliberately oversample diesel, hybrid, and electric vehicles to establish a more balanced feature importance hierarchy that reflects the increasingly diverse automotive market.
+
+\paragraph{Regional and market scope.}
+The dataset is drawn from the US market and reflects Environmental Protection Agency (EPA) test-cycle procedures, US-specific vehicle class definitions, and miles-per-gallon (MPG) measurement standards. Direct numerical outputs should not be assumed to transfer unchanged to other regions with different powertrain mixes, diesel/hybrid shares, vehicle size distributions, or test-cycle standards such as the Worldwide Harmonized Light Vehicles Test Procedure (WLTP) in Europe or region-specific fuel economy datasets in Asia. For example, European fleets typically exhibit higher diesel penetration, while Asian markets may include a greater proportion of small-displacement vehicles, both of which could substantially alter feature importance rankings and predictive performance. However, as noted in Section~5, the proposed methodological framework is adaptable: retraining the same pipeline on local certification or real-world driving data would enable region-specific deployment without requiring fundamental architectural changes.
+
+\paragraph{Collinearity among engine-size variables.}
+As identified in Section~4.1 and Section~4.7.2, the Pearson correlation between displacement and cylinders in this dataset is \(r = 0.94\), indicating near-perfect linear dependence. This multicollinearity limits the precision with which permutation importance and, to a lesser extent, SHAP can attribute unique explanatory power to either variable individually. When two features are highly correlated, permutation importance may exchange importance mass between them, and SHAP decompositions can distribute credit across correlated predictors in ways that depend on the specific correlation structure of the training sample. Consequently, the relative ranking of displacement versus cylinders should be interpreted cautiously, whereas the combined category---engine architecture as a whole---can be treated as the dominant structural determinant of fuel efficiency with high confidence. The inclusion of engineered interaction terms (displacement--year and cylinders--displacement) partially mitigates this issue by capturing joint effects, but the fundamental collinearity remains an inherent limitation of the feature set.
+
+\paragraph{Deterministic, tailpipe-only CO\textsubscript{2} estimation.}
+As stated in Section~3.10, the CO\textsubscript{2} estimates in this thesis reflect direct tailpipe emissions only, computed deterministically from fuel consumption using fuel-type-specific emission factors (23.1 gCO\textsubscript{2}/km per L/100km for gasoline; 26.4 gCO\textsubscript{2}/km per L/100km for diesel). Upstream electricity-generation emissions, fuel production and refining, battery manufacturing, and full lifecycle emissions are explicitly excluded from the scope of this study. Electric vehicles are assigned \(0\,\text{g/km}\) only for direct tailpipe CO\textsubscript{2}, which does not imply zero environmental impact. These estimates should therefore not be interpreted as full lifecycle carbon-footprint estimates or as comprehensive sustainability indicators; they are intended solely as a deterministic conversion of predicted fuel consumption to tailpipe CO\textsubscript{2} output for regulatory and comparative purposes within the specific boundary conditions defined.
+
+\paragraph{Sample size constraints on hyperparameter tuning.}
+With \(n \approx 430\) training samples after data cleaning and outlier removal, the training set is modest by modern deep learning standards, though adequate for structured tabular regression with tree-based ensembles. However, this sample size introduces stochasticity into validation error estimates during hyperparameter search, potentially leading to counterintuitive post-tuning performance changes for some models, as observed for Random Forest (\(\Delta R^2 = -0.0065\)) and LightGBM (\(\Delta R^2 = -0.0028\)) in Section~4.3. As noted by Chen~\cite{chen2025need} and discussed in Atique et al.~\cite{atique2026explainable}, when the hyperparameter search space is large relative to the available training samples, cross-validated performance estimates can exhibit variance that leads the search procedure to select configurations that perform well on the validation folds but generalize marginally worse on the independent test set. This effect is most pronounced for models with low intrinsic tunability (e.g., Random Forest with default parameters already near-optimal) and does not indicate a methodological flaw, but rather a known limitation of hyperparameter optimization on small-sample tabular datasets. The consistent performance of CatBoost (\(\Delta R^2 = +0.0023\)) and the dramatic improvements observed for Lasso (\(\Delta R^2 = +0.2128\)) and SVR (\(\Delta R^2 = +0.0779\)) confirm that tuning remains beneficial for many algorithms; the occasional degradation for structurally stable models is an expected, if cautionary, outcome.
+
+
+
+\section{Chapter Summary}
+
+This chapter interpreted the experimental results presented in Chapter~4 in light of the literature reviewed in Chapter~2, with particular attention to Atique et al.~\cite{atique2026explainable} as the primary methodological reference. The predictive performance of the 14 evaluated ML models and three advanced techniques was compared against prior work, confirming CatBoost as the best-performing model with a test \(R^2\) of 0.9260, an RMSE of 1.1759, and an MAE of 0.8147, replicating the algorithmic superiority of ordered boosting observed in the reference study. The feature engineering ablation study demonstrated selective but consistent benefits, particularly for linear, regularized, and CatBoost models, while tree-based ensembles with native interaction capacity (e.g., XGBoost, LightGBM, Gradient Boosting) showed mixed or neutral responses, confirming that the marginal utility of explicit feature construction depends critically on the inductive biases of the underlying algorithm. The cross-method XAI consistency analysis revealed strong agreement between SHAP and permutation importance (\(\rho = 0.857\)), corroborating the global feature importance narrative with cylinders, drive\_fwd, and displacement--year interaction as the dominant predictors, while the weaker LIME alignment (\(\rho = 0.407\)) reflected its fundamentally local scope, consistent with the pattern observed in \cite{atique2026explainable} and affirming the complementary nature of global and local explanatory perspectives. Practical implications were drawn for automotive manufacturers, environmental regulators, and consumers, translating the explainability-confirmed feature relationships into actionable design rules (engine downsizing, front-wheel drive adoption, and turbocharging), evidence-based policy frameworks (specification-based CO\textsubscript{2} emission benchmarks and audit-transparent certifications), and informed purchasing decisions (feature-level trade-offs for fuel efficiency). Finally, key limitations were documented, including the static, specification-only nature of the data, severe fuel-type class imbalance (gasoline dominance with only two diesel and two electric records), regional market scope (US EPA-style data), collinearity among engine-size variables (\(r = 0.94\) between displacement and cylinders), deterministic tailpipe-only CO\textsubscript{2} estimation, and sample size constraints on hyperparameter tuning that may produce stochastic post-tuning performance changes for structurally stable models. Chapter~6 now concludes the thesis.
